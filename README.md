@@ -1,25 +1,23 @@
-<div align="center">
-  <img src="logo.png" alt="Sip Programming Language Logo" width="200" height="200"/>
-  
-<h1 align="center" style="decoration:bold;font-size::1en">Sip Programming Language</h1>
-  <h1>Take a Sip and Relax</h1>
-  <p><em>A Refreshing Take on Programming</em></p>
-</div>
+<img src="logo.png" alt="Sip Programming Language Logo" width="200" height="200"/>
 
-<div align="center">
-  <h2>Why Choose Sip?</h2>
-  <p>Sip is a modern programming language designed for simplicity, safety, and seamless interoperability with C. Whether you're building high-performance systems or experimenting with new ideas, Sip makes it easy to write clean, efficient, and maintainable code.</p>
-</div>
+# Sip Programming Language
+## Take a Sip and Relax
+* _A Refreshing Take on Programming_
 
-<div align="left">
-  <h2>Core Features</h2>
-  <ul>
-    <li><strong>Interoperability:</strong> Seamlessly integrate with C for low-level control and performance.</li>
-    <li><strong>Memory Management:</strong> Explicit and safe memory handling with constructs like <code>lazypage</code> and <code>zeropage</code>.</li>
-    <li><strong>Null Safety:</strong> Built-in <code>nil</code> checks to prevent null pointer errors.</li>
-    <li><strong>Modern Syntax:</strong> Intuitive and expressive syntax for faster development.</li>
-  </ul>
-</div>
+---
+
+## Why Choose Sip?
+
+Sip is a modern programming language designed for simplicity, safety, and seamless interoperability with C. Whether you're building high-performance systems or experimenting with new ideas, Sip makes it easy to write clean, efficient, and maintainable code.
+
+---
+
+## Core Features
+
+- **Interoperability:** Seamlessly integrate with C for low-level control and performance.
+- **Memory Management:** Explicit and safe memory handling with constructs like `lazypage` and `zeropage`.
+- **Null Safety:** Built-in `nil` checks to prevent null pointer errors.
+- **Modern Syntax:** Intuitive and expressive syntax for faster development.
 
 ---
 
@@ -32,6 +30,7 @@
 ## The Serious Business Part (But Still Fun)
 
 ### Variables That Flow Naturally
+
 Sip keeps it simple: variables are mutable by default, constants are declared with `const`, and global variables are explicitly marked. No surprises, just smooth coding.
 
 ```sip
@@ -49,6 +48,7 @@ global const i32 MAX = 100;
 ```
 
 ### Functions That Pour Out Clarity
+
 Functions in Sip are like a perfectly measured drink—balanced, clear, and satisfying. Explicit return types and parameter declarations make everything easy to follow.
 
 ```sip
@@ -56,10 +56,10 @@ Functions in Sip are like a perfectly measured drink—balanced, clear, and sati
 fun add(i32 a, i32 b) -> i32 {
     return a + b;  // Simple math, simple life
 }
-
 ```
 
 ### Error Handling: No Bitter Aftertaste
+
 Sip doesn’t believe in exceptions. Instead, it gives you the tools to handle errors explicitly and gracefully. Defensive programming has never been this smooth.
 
 ```sip
@@ -75,6 +75,7 @@ mem.write(data);
 ```
 
 ### Memory Management: No Spills, Just Control
+
 Sip puts you in control of memory without making you feel like you’re juggling glasses. Explicit allocation and guarded access keep things safe and predictable.
 
 ```sip
@@ -94,6 +95,7 @@ nil (mem != nil) {
 ```
 
 ### C++ Interoperability: A Perfect Blend
+
 Sip integrates seamlessly with C++, allowing you to call C++ functions and use C++ libraries.
 
 ```sip
@@ -106,10 +108,9 @@ std.print("2^3 = " + result);
 
 ---
 
-<div align="center">
-  <h2>Getting Started</h2>
-  <p>Write your first Sip program and experience the clarity and simplicity of Sip.</p>
-</div>
+## Getting Started
+
+Write your first Sip program and experience the clarity and simplicity of Sip.
 
 ```sip
 @fun test(i32 age);
@@ -131,20 +132,19 @@ fun test(i32 age){
 
 ---
 
-<div align="center">
-  <h2>Conclusion</h2>
-  <p>Sip is more than just a programming language—it’s a refreshing philosophy. It’s about writing code that’s honest, clear, and predictable.</p>
-  <p><em>Take a Sip and start coding!</em></p>
-</div>
+## Conclusion
 
-<div align="center">
-  <h2>Community and Support</h2>
-  <p>Join our growing community of developers who are sipping their way to better code. Share your experiences, ask questions, and contribute to the Sip ecosystem.</p>
-  <p><strong>Links:</strong></p>
-  <ul>
-    <li><a href="https://github.com/sip-lang">GitHub</a></li>
-    <li><a href="https://sip-lang.org">Official Website</a></li>
-    <li><a href="https://discord.gg/sip-lang">Discord</a></li>
-  </ul>
-</div>
+Sip is more than just a programming language—it’s a refreshing philosophy. It’s about writing code that’s honest, clear, and predictable.
 
+*Take a Sip and start coding!*
+
+---
+
+## Community and Support
+
+Join our growing community of developers who are sipping their way to better code. Share your experiences, ask questions, and contribute to the Sip ecosystem.
+
+**Links:**
+- [GitHub](https://github.com/sip-lang)
+- [Official Website](https://sip-lang.org)
+- [Discord](https://discord.gg/sip-lang)
