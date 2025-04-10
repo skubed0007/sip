@@ -1,4 +1,4 @@
-<img src="logo.png" alt="Sip Programming Language Logo" width="200" height="200"/>
+<img src="logo.png" alt="Sip Programming Language Logo" width="200" height="250"/>
 
 # Sip Programming Language
 ## Take a Sip and Relax
@@ -145,6 +145,4 @@ Sip is more than just a programming language—it’s a refreshing philosophy. I
 Join our growing community of developers who are sipping their way to better code. Share your experiences, ask questions, and contribute to the Sip ecosystem.
 
 **Links:**
-- [GitHub](https://github.com/sip-lang)
-- [Official Website](https://sip-lang.org)
-- [Discord](https://discord.gg/sip-lang)
+- [Official Website](https://siplang.vercel.app)
