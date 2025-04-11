@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug,Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TokenType {
     Fun,
     LazyP,
@@ -16,6 +16,8 @@ pub enum TokenType {
     Nil,
     Exclamation,
     At,
+    Struct,
+    Enum,
 }
 
 
@@ -76,14 +78,6 @@ impl<'a> Lexer<'a> {
         start_col: usize,
         end_col: usize,
     ) {
-        println!(
-            "DEBUG => Add Token: {:?} | Lexeme: {:?} | Line: {}, Columns: {}-{}",
-            token_type,
-            lexeme.as_ref().unwrap_or(&"<none>".to_string()),
-            line,
-            start_col,
-            end_col
-        );
 
         self.tokens.push(Token {
             token_type,

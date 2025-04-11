@@ -1,7 +1,6 @@
 use super::defs::{Lexer, TokenType};
 use crate::token::lexer::TokenType::*;
 
-#[allow(unused, dead_code)]
 impl<'a> Lexer<'a> {
     pub fn lex(&mut self) {
         let mut chars = self.source.char_indices().peekable();
@@ -11,8 +10,41 @@ impl<'a> Lexer<'a> {
         let mut curword = String::new();
         let mut token_start_col = column;
 
-        while let Some((i, c)) = chars.next() {
+        while let Some((_, c)) = chars.next() {
             match c {
+                '/' => {
+                    match chars.peek() {
+                        Some((_, '/')) => {
+                            while let Some((_, ch)) = chars.next() {
+                                if ch == '\n' {
+                                    break;
+                                }
+                            }
+                            line += 1;
+                            column = 1;
+                        }
+                        Some((_, '*')) => {
+                            chars.next();
+                            let mut prev = '\0';
+                            while let Some((_, ch)) = chars.next() {
+                                if prev == '*' && ch == '/' {
+                                    break;
+                                }
+                                if ch == '\n' {
+                                    line += 1;
+                                    column = 1;
+                                } else {
+                                    column += 1;
+                                }
+                                prev = ch;
+                            }
+                        }
+                        _ => {
+                            column += 1;
+                        }
+                    }
+                }
+
                 'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => {
                     if curword.is_empty() {
                         token_start_col = column;
@@ -21,9 +53,7 @@ impl<'a> Lexer<'a> {
                     column += 1;
                 }
 
-                // Word & symbol delimiters
                 ' ' | '\t' | '\r' | '\n' | ';' | ',' | '(' | ')' | '{' | '}' | '[' | ']' | '!' | '@' => {
-                    // Flush word
                     if !curword.is_empty() {
                         self.match_word(&curword, line, token_start_col, column);
                         curword.clear();
@@ -56,14 +86,12 @@ impl<'a> Lexer<'a> {
                     }
                 }
 
-                // Unknowns (skip)
                 _ => {
                     column += 1;
                 }
             }
         }
 
-        // Final flush
         if !curword.is_empty() {
             self.match_word(&curword, line, token_start_col, column);
         }
@@ -75,6 +103,8 @@ impl<'a> Lexer<'a> {
             "lazypage" => LazyP,
             "zeropage" => ZeroP,
             "nil" => Nil,
+            "struct" => Struct,
+            "enum" => Enum,
             _ => TokenType::Ident,
         };
 

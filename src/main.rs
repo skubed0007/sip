@@ -1,6 +1,8 @@
 use std::env::args;
 
 use dbgs::tok::print_tokens;
+use err::genmsg::genmsg;
+use parser::boot::bootp;
 use token::defs::Lexer;
 
 
@@ -8,6 +10,7 @@ use token::defs::Lexer;
 pub mod token;
 pub mod dbgs;
 pub mod parser;
+pub mod err;
 
 
 fn main() {
@@ -30,5 +33,15 @@ fn main() {
     lexer.lex();
     let tokens = lexer.get_tokens();
     print_tokens(&tokens);
-    //tokenize
+    let (nodes, errlist) = bootp(&tokens);
+    if errlist.len() > 0 {
+        for err in errlist {
+            println!("{}",genmsg(err, &code));
+        }
+    }
+    println!("nodes len : {}",nodes.len());
+    for node in nodes {
+        println!("{:#?}",node);
+    }
+
 }
