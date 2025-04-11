@@ -33,7 +33,7 @@ fn main() {
     lexer.lex();
     let tokens = lexer.get_tokens();
     print_tokens(&tokens);
-    let (nodes, errlist) = bootp(&tokens);
+    let (nodes, errlist) = bootp(&tokens,false);
     if errlist.len() > 0 {
         for err in errlist {
             println!("{}",genmsg(err, &code));

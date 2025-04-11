@@ -6,20 +6,18 @@ use crate::{
 use super::defs::{FunDef, NodeT, Var, VarType};
 
 #[allow(unused)]
-pub fn bootp(tokens: &Vec<Token>) -> (Vec<NodeT>, Vec<ErrT>) {
+pub fn bootp(tokens: &[Token], fromfn: bool) -> (Vec<NodeT>, Vec<ErrT>) {
     let mut nodes = Vec::new();
     let mut errlist: Vec<ErrT> = Vec::new();
     let mut line = 0;
-    let mut tokiter = tokens.iter().peekable();
+    let mut tokiter: std::iter::Peekable<std::slice::Iter<'_, Token>> = tokens.iter().peekable();
 
     while let Some(token) = tokiter.next() {
         match token.token_type {
             TokenType::EOL => {
                 line += 1;
             }
-
-            TokenType::Fun => {
-                // Parse function name
+            TokenType::Fun if !fromfn => {
                 let fnname = {
                     let mut collected_idents = Vec::new();
                     while let Some(nxttok) = tokiter.peek() {
@@ -179,14 +177,43 @@ pub fn bootp(tokens: &Vec<Token>) -> (Vec<NodeT>, Vec<ErrT>) {
                         column_end: token.column_end.unwrap_or(0),
                     });
                 }
+
                 if return_types.contains(&VarType::Nil) && return_types.len() != 1 {
-                    errlist.push(ErrT::TupleNil { line: line, column_start: token.column_start.unwrap(), column_end: token.column_end.unwrap() });
-                } 
+                    errlist.push(ErrT::TupleNil {
+                        line,
+                        column_start: token.column_start.unwrap(),
+                        column_end: token.column_end.unwrap(),
+                    });
+                }
+
+                // Parse function body tokens
+                let mut fnbodyintoks: Vec<Token> = Vec::new();
+                if let Some(tok) = tokiter.next() {
+                    if tok.token_type == TokenType::LCurlyB {
+                        let mut bracedepth = 1;
+                        while let Some(ctok) = tokiter.next() {
+                            match ctok.token_type {
+                                TokenType::RCurlyB if bracedepth == 1 => break,
+                                TokenType::RCurlyB => bracedepth -= 1,
+                                TokenType::LCurlyB => bracedepth += 1,
+                                _ => {}
+                            }
+                            fnbodyintoks.push(ctok.clone());
+                        }
+                    }
+                }
+                let start_index = 0;
+                let end_index = fnbodyintoks.len();
+                let inner_tokens = &tokens[start_index..end_index];
+                let fnbody = bootp(inner_tokens, true);
+
+                errlist.extend(fnbody.1);
+
                 // Store function node
                 let node = NodeT::FunDef(FunDef {
                     name: Box::leak(fnname.into_boxed_str()),
                     args: Some(args),
-                    body: vec![],
+                    body: fnbody.0,
                     ret_type: if return_types.len() == 1 {
                         Some(return_types[0].clone())
                     } else if return_types.len() > 1 {
@@ -207,18 +234,13 @@ pub fn bootp(tokens: &Vec<Token>) -> (Vec<NodeT>, Vec<ErrT>) {
 }
 
 /// Helper function to map identifier strings to VarType enum.
-fn parse_type(
-    val: &str,
-    errlist: &mut Vec<ErrT>,
-    line: usize,
-    tok: &Token,
-) -> Option<VarType> {
+fn parse_type(val: &str, errlist: &mut Vec<ErrT>, line: usize, tok: &Token) -> Option<VarType> {
     match val {
-        "i32" => Some(VarType::I32),
-        "i64" => Some(VarType::I64),
-        "f32" => Some(VarType::F32),
-        "f64" => Some(VarType::F64),
-        "char" => Some(VarType::Char),
+        "i32" => Some(VarType::I32(0)),
+        "i64" => Some(VarType::I64(0)),
+        "f32" => Some(VarType::F32(0.0)),
+        "f64" => Some(VarType::F64(0.0)),
+        "char" => Some(VarType::Char(' ')),
         "lazypage" => Some(VarType::LazyPage),
         "zeropage" => Some(VarType::ZeroPage),
         "nil" => Some(VarType::Nil),

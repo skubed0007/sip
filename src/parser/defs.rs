@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 /// Represents different kinds of syntax tree nodes in the Sip language.
 ///
 /// These nodes form the AST and represent distinct syntactic elements.
@@ -12,8 +12,10 @@ pub enum NodeT<'a> {
     ///
     /// Syntax: `fun <name>(<args>) @ <ret_type> { <body> }`
     FunDef(FunDef<'a>),
+    ///Return
+    Ret(Var),
 }
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 /// Defines a function signature and body in the Sip language.
 ///
 /// This structure includes the function name, arguments, optional return type,
@@ -33,7 +35,7 @@ pub struct FunDef<'a> {
     /// Optional return type of the function.
     pub ret_type: Option<VarType>,
 }
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 /// Represents a variable in the Sip language.
 ///
 /// A variable has a name, a type, and optionally a size (only for special types).
@@ -50,22 +52,22 @@ pub struct Var {
 /// Enumerates the supported types in Sip.
 ///
 /// These types are used in variable declarations, return types, etc.
-#[derive(Clone, Debug,PartialEq, Eq)]
+#[derive(Clone, Debug,PartialEq)]
 pub enum VarType {
     /// 32-bit signed integer
-    I32,
+    I32(i32),
 
     /// 64-bit signed integer
-    I64,
+    I64(i64),
 
     /// 32-bit floating point
-    F32,
+    F32(f32),
 
     /// 64-bit floating point
-    F64,
+    F64(f64),
 
     /// Character (usually UTF-8 or ASCII)
-    Char,
+    Char(char),
 
     /// Left Page — used for memory/block access (with `size`)
     LazyPage,

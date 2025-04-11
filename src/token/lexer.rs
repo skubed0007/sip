@@ -105,6 +105,7 @@ impl<'a> Lexer<'a> {
             "nil" => Nil,
             "struct" => Struct,
             "enum" => Enum,
+            "ret" => Ret,
             _ => TokenType::Ident,
         };
 
