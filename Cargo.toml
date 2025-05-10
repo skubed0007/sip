@@ -1,0 +1,20 @@
+[package]
+name = "sip"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+colored = "3.0.0"
+enable-ansi-support = "0.2.1"
+memmap2 = "0.9.5"
+smallstr = "0.3.0"
+
+[profile.release]
+opt-level = "z"      # Can use "3" or "z" depending on goal (see below)
+codegen-units = 1    # Better optimization, slower compile
+lto = "fat"          # Link Time Optimization (full mode)
+debug = false        # No debug symbols at all
+strip = "symbols"    # Strip symbols for faster loading (requires Rust 1.71+)
+overflow-checks = false
+panic = "abort"      # No stack unwinding, smaller & faster
+incremental = false  # Disable incremental builds
