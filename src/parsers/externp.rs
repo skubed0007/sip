@@ -2,9 +2,9 @@ use smallstr::SmallString;
 use std::iter::Peekable;
 
 use crate::{
-    ast::{Var, ID_CAP, NT},
+    ast::{ID_CAP, NT, Var},
     errt::t::{ErrT, SErr},
-    tokdefs::{Tok, IDT, TT},
+    tokdefs::{IDT, TT, Tok},
 };
 
 #[derive(PartialEq, Clone)]
@@ -25,7 +25,10 @@ pub enum State {
 ///
 /// If the parse is successful, it returns an `NT::Extern` variant. If any
 /// parsing errors occur, it returns a vector of `SErr`.
-pub fn externp(tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>, filename: &String) -> Result<NT, Vec<SErr>> {
+pub fn externp(
+    tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>,
+    filename: &String,
+) -> Result<NT, Vec<SErr>> {
     let mut errs: Vec<SErr> = Vec::new();
     let mut sipname: SmallString<[u8; ID_CAP]> = SmallString::from("uninitialized");
     let mut cname: SmallString<[u8; ID_CAP]> = SmallString::from("uninitialized");
@@ -56,27 +59,25 @@ pub fn externp(tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>, filen
                 TT::EQS => {
                     state = State::ExpectCName;
                 }
-                _ => {
-                    match parse_typed_var(&tok, &mut iter, filename) {
-                        Ok(Some(var)) => {
-                            sipfnargs.push(var.clone());
-                            if let Var::Variadic = var {
-                                state = State::ExpectEq;
-                            }
+                _ => match parse_typed_var(&tok, &mut iter, filename) {
+                    Ok(Some(var)) => {
+                        sipfnargs.push(var.clone());
+                        if let Var::Variadic = var {
+                            state = State::ExpectEq;
                         }
-                        Ok(None) => {
-                            errs.push(SErr::new(
-                                ErrT::ExpectName,
-                                tok.line,
-                                tok.start,
-                                tok.end,
-                                filename.clone(),
-                            ));
-                        }
-                        Err(mut e) => errs.append(&mut e),
                     }
-                }
-            }
+                    Ok(None) => {
+                        errs.push(SErr::new(
+                            ErrT::ExpectName,
+                            tok.line,
+                            tok.start,
+                            tok.end,
+                            filename.clone(),
+                        ));
+                    }
+                    Err(mut e) => errs.append(&mut e),
+                },
+            },
 
             State::ExpectEq => match &tok.tt {
                 TT::EQS => {
@@ -91,7 +92,7 @@ pub fn externp(tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>, filen
                         filename.clone(),
                     ));
                 }
-            }
+            },
 
             State::ExpectCName => {
                 if let TT::IDENT(IDT::DQ, name) = &tok.tt {
@@ -113,27 +114,25 @@ pub fn externp(tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>, filen
                     state = State::Done;
                     break;
                 }
-                _ => {
-                    match parse_typed_var(&tok, &mut iter, filename) {
-                        Ok(Some(var)) => {
-                            cfnargs.push(var.clone());
-                            if let Var::Variadic = var {
-                                state = State::ExpectCArgOrSemicolon;
-                            }
+                _ => match parse_typed_var(&tok, &mut iter, filename) {
+                    Ok(Some(var)) => {
+                        cfnargs.push(var.clone());
+                        if let Var::Variadic = var {
+                            state = State::ExpectCArgOrSemicolon;
                         }
-                        Ok(None) => {
-                            errs.push(SErr::new(
-                                ErrT::ExpectName,
-                                tok.line,
-                                tok.start,
-                                tok.end,
-                                filename.clone(),
-                            ));
-                        }
-                        Err(mut e) => errs.append(&mut e),
                     }
-                }
-            }
+                    Ok(None) => {
+                        errs.push(SErr::new(
+                            ErrT::ExpectName,
+                            tok.line,
+                            tok.start,
+                            tok.end,
+                            filename.clone(),
+                        ));
+                    }
+                    Err(mut e) => errs.append(&mut e),
+                },
+            },
 
             State::Done => unreachable!(),
         }
@@ -216,9 +215,7 @@ fn parse_typed_var(
             return match &type_tok.tt {
                 TT::F32 => Ok(Some(Var::F32(0.0, name))),
                 TT::I32 => Ok(Some(Var::I32(0, name))),
-                _ => {
-                    Ok(Some(Var::Generic(name)))
-                }
+                _ => Ok(Some(Var::Generic(name))),
             };
         }
     }

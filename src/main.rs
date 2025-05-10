@@ -1,15 +1,15 @@
 use colored::Colorize;
 use errt::d1::DErr;
 use lexer::lex;
+use memmap2::Mmap;
 use parsers::parse;
 use std::{env, fs::File, process};
-use memmap2::Mmap;
 
 pub mod ast;
+pub mod codegen;
 pub mod errt;
 pub mod lexer;
 pub mod parsers;
-pub mod codegen;
 pub mod tokdefs;
 
 fn main() {
@@ -23,7 +23,7 @@ fn main() {
         process::exit(1);
     }
     let args: Vec<String> = env::args().collect();
-    
+
     if args.len() < 2 {
         eprintln!(
             "{} {}\n{}",
@@ -41,7 +41,9 @@ fn main() {
             eprintln!(
                 "{} {}\n{}",
                 "╭─".bright_black(),
-                format!("Failed to open file `{}`: {}", path, e).bold().red(),
+                format!("Failed to open file `{}`: {}", path, e)
+                    .bold()
+                    .red(),
                 "╰─ Ensure the path is correct and the file is accessible.".bright_black()
             );
             process::exit(1);
@@ -68,7 +70,7 @@ fn main() {
     let tokens = lex(code);
     //println!("tokens:\n{:#?}", &tokens);
 
-    match parse(tokens,path) {
+    match parse(tokens, path) {
         Ok(ast) => {
             println!("ast:\n{:#?}", ast);
         }

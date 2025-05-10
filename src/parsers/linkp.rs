@@ -7,29 +7,32 @@ use crate::{
 };
 
 /// Parses tokens to extract library names for linking.
-/// 
+///
 /// This function processes a sequence of tokens and attempts to parse them into
 /// a list of library names that are intended for linking. The tokens are expected
 /// to follow a specific syntax where each library name is represented as a double-quoted
 /// identifier, and the list is terminated by a semicolon.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `tokiter` - A mutable iterator over tokens, used for parsing.
 /// * `filename` - The name of the file being parsed, used for error reporting.
-/// 
+///
 /// # Returns
-/// 
+///
 /// Returns a `Result` containing an `NT::Link` variant with the list of library names
 /// if successful, or a vector of `SErr` if any parsing errors occur.
-/// 
+///
 /// # Errors
-/// 
-/// Errors are returned if no library names are found before the semicolon, or if 
-/// unexpected tokens are encountered. Additionally, it reports an error if the 
+///
+/// Errors are returned if no library names are found before the semicolon, or if
+/// unexpected tokens are encountered. Additionally, it reports an error if the
 /// end of the file is reached without encountering a semicolon.
 
-pub fn linkp(tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>,filename: &String) -> Result<NT, Vec<SErr>> {
+pub fn linkp(
+    tokiter: &mut std::iter::Peekable<std::vec::IntoIter<Tok>>,
+    filename: &String,
+) -> Result<NT, Vec<SErr>> {
     let mut errs: Vec<SErr> = Vec::new();
     let mut libs: Vec<SmallString<[u8; ID_CAP]>> = Vec::new();
     let mut saw_name = false;

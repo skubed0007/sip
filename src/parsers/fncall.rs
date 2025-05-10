@@ -1,12 +1,12 @@
-use std::iter::Peekable;
-use smallstr::SmallString;
 use crate::{
-    ast::{Var, NT},
+    ast::{NT, Var},
     errt::t::{ErrT, SErr},
-    tokdefs::{Tok, IDT, NUMT, TT},
+    tokdefs::{IDT, NUMT, TT, Tok},
 };
+use smallstr::SmallString;
+use std::iter::Peekable;
 
-#[allow(dead_code,unused)]
+#[allow(dead_code, unused)]
 
 /// Parse a function call.
 ///
@@ -25,34 +25,25 @@ pub fn fncallp(
     iter: &mut Peekable<std::vec::IntoIter<Tok>>,
     fnname: String,
     ast: &[NT],
-    file: &String
+    file: &String,
 ) -> Result<NT, Vec<SErr>> {
     let mut errs = Vec::new();
     let mut args: Vec<Var> = Vec::new();
 
     let mut extern_decl = None;
     for node in ast {
-        match node {
-            NT::Extern(name, params, c_name, _) => {
-                if name.as_str() == fnname {
-                    extern_decl = Some((params.clone(), c_name.clone()));
-                    break;
-                }
+        if let NT::Extern(name, params, c_name, _) = node {
+            if name.as_str() == fnname {
+                extern_decl = Some((params.clone(), c_name.clone()));
+                break;
             }
-            _ => {}
         }
     }
 
     let (expected_params, _) = match extern_decl {
         Some(decl) => decl,
         None => {
-            errs.push(SErr::new(
-                ErrT::UnexpectTok,
-                0,
-                0,
-                0,
-                file.to_string()
-            ));
+            errs.push(SErr::new(ErrT::UnexpectTok, 0, 0, 0, file.to_string()));
             return Err(errs);
         }
     };
@@ -65,18 +56,12 @@ pub fn fncallp(
                 tok.line,
                 tok.start,
                 tok.end,
-                file.to_string()
+                file.to_string(),
             ));
             return Err(errs);
         }
         None => {
-            errs.push(SErr::new(
-                ErrT::UnexpectedEof,
-                0,
-                0,
-                0,
-                file.to_string()
-            ));
+            errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
             return Err(errs);
         }
     }
@@ -94,18 +79,12 @@ pub fn fncallp(
                         tok.line,
                         tok.start,
                         tok.end,
-                        file.to_string()
+                        file.to_string(),
                     ));
                     return Err(errs);
                 }
                 None => {
-                    errs.push(SErr::new(
-                        ErrT::UnexpectedEof,
-                        0,
-                        0,
-                        0,
-                        file.to_string()
-                    ));
+                    errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                     return Err(errs);
                 }
             }
@@ -118,24 +97,12 @@ pub fn fncallp(
                     arg
                 }
                 None => {
-                    errs.push(SErr::new(
-                        ErrT::UnexpectedEof,
-                        0,
-                        0,
-                        0,
-                        file.to_string()
-                    ));
+                    errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                     return Err(errs);
                 }
             },
             None => {
-                errs.push(SErr::new(
-                    ErrT::UnexpectedEof,
-                    0,
-                    0,
-                    0,
-                    file.to_string()
-                ));
+                errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                 return Err(errs);
             }
         };
@@ -161,26 +128,14 @@ pub fn fncallp(
                 if let Var::F32(a_val, a_name) = arg {
                     args.push(Var::F32(a_val, a_name));
                 } else {
-                    errs.push(SErr::new(
-                        ErrT::TypeMismatch,
-                        0,
-                        0,
-                        0,
-                        file.to_string()
-                    ));
+                    errs.push(SErr::new(ErrT::TypeMismatch, 0, 0, 0, file.to_string()));
                 }
             }
             Var::List(items) => {
                 if let Var::List(a_items) = arg {
                     args.push(Var::List(a_items));
                 } else {
-                    errs.push(SErr::new(
-                        ErrT::TypeMismatch,
-                        0,
-                        0,
-                        0,
-                        file.to_string()
-                    ));
+                    errs.push(SErr::new(ErrT::TypeMismatch, 0, 0, 0, file.to_string()));
                 }
             }
             Var::Variadic => {
@@ -197,59 +152,44 @@ pub fn fncallp(
                 tok.line,
                 tok.start,
                 tok.end,
-                file.to_string()
+                file.to_string(),
             ));
         }
         None => {
-            errs.push(SErr::new(
-                ErrT::UnexpectedEof,
-                0,
-                0,
-                0,
-                file.to_string()
-            ));
+            errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
         }
     }
     if iter.peek().is_some() && iter.next().unwrap().tt != TT::SemiC {
-        errs.push(SErr::new(
-            ErrT::UnexpectTok,
-            0,
-            0,
-            0,
-            file.to_string()
-        ));
+        errs.push(SErr::new(ErrT::UnexpectTok, 0, 0, 0, file.to_string()));
     }
     if !errs.is_empty() {
         return Err(errs);
     }
 
-    Ok(NT::fncall(
-        SmallString::from(fnname.clone()),
-        args,
-    ))
+    Ok(NT::fncall(SmallString::from(fnname.clone()), args))
 }
 
 /// Parses a token as a function call argument, converting it into a `Var` type.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `tok` - The current token being parsed.
 /// * `iter` - A mutable iterator over the remaining tokens.
 /// * `file` - The name of the file being parsed, used for error reporting.
-/// 
+///
 /// # Returns
-/// 
+///
 /// A `Result` containing an `Option<Var>` if successfully parsed, or a vector of `SErr` if an error occurs.
-/// 
+///
 /// # Errors
-/// 
+///
 /// Returns an error if an unexpected token is encountered or if the end of the input is reached unexpectedly.
 
-#[allow(dead_code,unused)]
+#[allow(dead_code, unused)]
 fn parse_argument_token(
     tok: &Tok,
     iter: &mut Peekable<std::vec::IntoIter<Tok>>,
-    file: &String
+    file: &String,
 ) -> Result<Option<Var>, Vec<SErr>> {
     match tok.tt {
         TT::NUM(NUMT::I32(val)) => Ok(Some(Var::I32(val, SmallString::from("")))),
@@ -286,7 +226,7 @@ fn parse_argument_token(
                                 0,
                                 0,
                                 0,
-                                file.to_string()
+                                file.to_string(),
                             )]);
                         }
                     }
@@ -296,8 +236,8 @@ fn parse_argument_token(
                             0,
                             0,
                             0,
-                            file.to_string()
-                        )])
+                            file.to_string(),
+                        )]);
                     }
                 }
             }
@@ -309,7 +249,7 @@ fn parse_argument_token(
             tok.line,
             tok.start,
             tok.end,
-            file.to_string()
+            file.to_string(),
         )]),
     }
 }

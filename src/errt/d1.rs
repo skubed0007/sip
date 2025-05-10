@@ -76,12 +76,7 @@ pub fn DErr(err: &SErr, src: &str) {
             Some("provide a valid expression or value"),
             Some("could be a literal, var name, or call"),
         ),
-        ErrT::Generic(msg) => (
-            "error",
-            msg.as_str(),
-            None,
-            None,
-        ),
+        ErrT::Generic(msg) => ("error", msg.as_str(), None, None),
         ErrT::TypeMismatch => (
             "type mismatch",
             "Types of operands do not match.",
@@ -98,23 +93,21 @@ pub fn DErr(err: &SErr, src: &str) {
 
     let line_number = err.line.max(1);
     let line_str = src.lines().nth((line_number - 1) as usize).unwrap_or("");
-    
+
     let (start, end) = match &err.t {
         ErrT::MissingSemicolon => {
             let pos = line_str.trim_end().len();
             (pos, pos + 1)
-        },
-        _ => (err.start as usize, err.end as usize)
+        }
+        _ => (err.start as usize, err.end as usize),
     };
 
     // Error header
-    println!("\nerror[E{:04}]: {}", 
-        line_number, 
-        kind.bright_red().bold()
-    );
+    println!("\nerror[E{:04}]: {}", line_number, kind.bright_red().bold());
 
     // Location bar
-    println!("  --> {}:{}:{}", 
+    println!(
+        "  --> {}:{}:{}",
         err.file.bright_blue(),
         line_number,
         start + 1
@@ -122,36 +115,29 @@ pub fn DErr(err: &SErr, src: &str) {
 
     // Code context frame
     println!("   ╭─[{}]", "source".bright_black());
-    println!("{} │ {}", 
+    println!(
+        "{} │ {}",
         format!("{:>2}", line_number).bright_black(),
         line_str
     );
 
     // Error indicator
-    println!("   │ {}{}",
+    println!(
+        "   │ {}{}",
         " ".repeat(start),
         "^".repeat(end - start).bright_red().bold()
     );
-    println!("   │ {}{}",
-        " ".repeat(start),
-        detail.bright_red()
-    );
+    println!("   │ {}{}", " ".repeat(start), detail.bright_red());
 
     // Help section if available
     if let Some(h) = help {
         println!("   │");
-        println!("   ╰─[{}] {}", 
-            "help".green().bold(),
-            h.bright_white()
-        );
+        println!("   ╰─[{}] {}", "help".green().bold(), h.bright_white());
     }
 
     // Note section if available
     if let Some(n) = note {
-        println!("      {} {}", 
-            "note:".cyan().bold(),
-            n.bright_white()
-        );
+        println!("      {} {}", "note:".cyan().bold(), n.bright_white());
     }
     println!();
 }
