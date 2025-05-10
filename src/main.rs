@@ -1,9 +1,10 @@
+use codegen::codegen::cgen;
 use colored::Colorize;
 use errt::d1::DErr;
 use lexer::lex;
 use memmap2::Mmap;
 use parsers::parse;
-use std::{env, fs::File, process};
+use std::{env, fs::{File, self}, process};
 
 pub mod ast;
 pub mod codegen;
@@ -13,6 +14,7 @@ pub mod parsers;
 pub mod tokdefs;
 
 fn main() {
+    // Ensure ANSI support is enabled for colored output
     if enable_ansi_support::enable_ansi_support().is_err() {
         eprintln!(
             "{} {}\n{}",
@@ -22,8 +24,11 @@ fn main() {
         );
         process::exit(1);
     }
+
+    // Get command-line arguments
     let args: Vec<String> = env::args().collect();
 
+    // Check if the source file is provided
     if args.len() < 2 {
         eprintln!(
             "{} {}\n{}",
@@ -34,7 +39,10 @@ fn main() {
         process::exit(1);
     }
 
+    // Path to the source file
     let path = &args[1];
+
+    // Attempt to open the source file
     let file = match File::open(path) {
         Ok(f) => f,
         Err(e) => {
@@ -50,6 +58,7 @@ fn main() {
         }
     };
 
+    // Memory-map the file for reading
     let mmap = unsafe {
         match Mmap::map(&file) {
             Ok(m) => m,
@@ -65,16 +74,67 @@ fn main() {
         }
     };
 
+    // Get the code from the memory-mapped file
     let code = &mmap[..];
 
+    // Tokenize the code
     let tokens = lex(code);
-    //println!("tokens:\n{:#?}", &tokens);
 
+    // Parse the tokens and generate AST
     match parse(tokens, path) {
         Ok(ast) => {
-            println!("ast:\n{:#?}", ast);
+            println!("AST:\n{:#?}", ast);
+
+            // Generate C code from the AST
+            let c_code = cgen(&ast);
+
+            // Define the output C file path
+            let c_file_path = "generated_code.c";
+
+            // Write the generated C code to the file
+            match fs::write(c_file_path, &c_code) {
+                Ok(_) => {
+                    println!("Generated C code saved to `{}`.", c_file_path);
+
+                    // Compile the C code using Zig
+                    let status = process::Command::new("zig")
+                        .arg("cc")
+                        .arg(c_file_path)
+                        .arg("-o")
+                        .arg("a.out")
+                        .status();
+
+                    // Check if Zig compilation succeeded
+                    match status {
+                        Ok(st) if st.success() => {
+                            println!("C code compiled successfully! Output: a.out");
+                        }
+                        _ => {
+                            eprintln!(
+                                "{} {}\n{}",
+                                "╭─".bright_black(),
+                                "Failed to compile C code with Zig.".bold().red(),
+                                "╰─ Make sure Zig is installed and the C code is valid.".bright_black()
+                            );
+                            process::exit(1);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!(
+                        "{} {}\n{}",
+                        "╭─".bright_black(),
+                        format!("Failed to write C code to `{}`: {}", c_file_path, e)
+                            .bold()
+                            .red(),
+                        "╰─ Check if the file path is valid and writable.".bright_black()
+                    );
+                    process::exit(1);
+                }
+            }
         }
         Err(es) => {
+            // Error handling for parsing
             if !es.is_empty() {
                 println!(
                     "{}\n{}",

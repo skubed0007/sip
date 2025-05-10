@@ -23,7 +23,7 @@ pub enum NT {
     /// Function call:
     /// - `name`: SIP identifier (inline or heap)
     /// - `args`: arguments for the SIP function
-    fncall(SmallString<[u8; ID_CAP]>, Vec<Var>),
+    FNCALL(SmallString<[u8; ID_CAP]>, Vec<Var>),
 }
 
 /// Typed value with inline‑optimized name.
