@@ -29,111 +29,122 @@ pub fn print_help() {
 
     // Global Options
     println!("{}", "OPTIONS".bold().bright_blue());
+    let opts = vec![
+        ("--retainc", "I'll keep the C file around, like a good packrat"),
+        ("-O <n>, --opt <n>", "Tell me how hard to flex my optimizer muscles"),
+        ("-g, --debug", "I'll sprinkle in debug symbols — detective mode activated"),
+        ("-Wall", "I’ll warn you about *everything*, even your bad life choices (jk)"),
+        ("-Werror", "No mercy — warnings become errors"),
+        ("-static", "I'll glue everything into one solid binary"),
+        ("-fPIC, --pic", "Position-independent code — I can run from anywhere"),
+        ("-D<macro>[=<val>]", "Need a macro? I'll define it, no questions asked"),
+        ("-I<path>", "I'll look here for includes — like a lost tourist with a map"),
+        ("-L<path>", "Library hunt? I’ll search here too"),
+        ("-l<lib>", "I'll link your code to this fine library right here"),
+        ("--target <triple>", "Pick a platform and I’ll play along"),
+        ("--mcpu <name>", "Tell me which CPU to impress"),
+        ("--march <arch>", "Architecture? I speak several dialects"),
+        ("--sanitize <kind>", "Runtime checks? Say no more"),
+        ("--lto [thin|full]", "Want me to think ahead? I'll optimize across files"),
+        ("--cache-dir <path>", "I’ll keep my Zig mess here"),
+        ("--test", "I'll inject my secret tests into your build"),
+        ("--trans-zig", "Experimental: I’ll emit Zig instead of C (don’t judge)"),
+        ("--out <file>", "I’ll call the result this fancy name"),
+        ("-h, --help", "That’s me! You're reading it"),
+    ];
 
-    println!(
-        "  {} {} I'll keep the C file around, like a good packrat",
-        "›".bold().bright_green(),
-        "--retainc".bold().bright_yellow()
-    );
+    for (opt, desc) in opts {
+        println!(
+            "  {} {} {}",
+            "›".bold().bright_green(),
+            opt.bold().bright_yellow(),
+            desc
+        );
+    }
 
-    println!(
-        "  {} {} Tell me how hard to flex my optimizer muscles",
-        "›".bold().bright_green(),
-        "-O <n>, --opt <n>".bold().bright_yellow()
-    );
-    println!(
-        "     {} {}   Chill mode — no optimizations, perfect for debugging",
-        "•".bright_black(),
-        "0".bold().bright_magenta()
-    );
-    println!(
-        "     {} {}   A healthy balance of speed and size — just right",
-        "•".bright_black(),
-        "1".bold().bright_magenta()
-    );
-    println!(
-        "     {} {}   Full throttle — go fast or go home",
-        "•".bright_black(),
-        "2".bold().bright_magenta()
-    );
-    println!(
-        "     {} {}   Slim-fit binary mode — tight and tiny",
-        "•".bright_black(),
-        "3".bold().bright_magenta()
-    );
+    // Optimization Levels
+    println!("\n{}", "  Optimization Levels:".italic().bright_black());
+    let opt_levels = vec![
+        ("0", "Chill mode — no optimizations, perfect for debugging"),
+        ("1", "A healthy balance of speed and size — just right"),
+        ("2", "Full throttle — go fast or go home"),
+        ("3", "Slim-fit binary mode — tight and tiny"),
+    ];
+    for (level, note) in opt_levels {
+        println!(
+            "     {} {}   {}",
+            "•".bright_black(),
+            level.bold().bright_magenta(),
+            note
+        );
+    }
 
-    println!(
-        "  {} {} I'll sprinkle in debug symbols — detective mode activated",
-        "›".bold().bright_green(),
-        "-g, --debug".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I’ll warn you about *everything*, even your bad life choices (jk)",
-        "›".bold().bright_green(),
-        "-Wall".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} No mercy — warnings become errors",
-        "›".bold().bright_green(),
-        "-Werror".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I'll glue everything into one solid binary",
-        "›".bold().bright_green(),
-        "-static".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} Position-independent code — I can run from anywhere",
-        "›".bold().bright_green(),
-        "-fPIC, --pic".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} Need a macro? I'll define it, no questions asked",
-        "›".bold().bright_green(),
-        "-D<macro>[=<val>]".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I'll look here for includes — like a lost tourist with a map",
-        "›".bold().bright_green(),
-        "-I<path>".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} Library hunt? I’ll search here too",
-        "›".bold().bright_green(),
-        "-L<path>".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I'll link your code to this fine library right here",
-        "›".bold().bright_green(),
-        "-l<lib>".bold().bright_yellow()
-    );
+    // Targets
+    println!("\n{}", "  Target Triples:".italic().bright_black());
+    let targets = vec![
+    // x86 (Intel/AMD)
+    ("x86_64-linux-gnu", "Linux x86-64 (glibc) — standard desktop/server"),
+    ("i686-linux-gnu", "Linux x86-32 (glibc) — legacy systems"),
+    ("x86_64-linux-musl", "Linux x86-64 (musl libc) — static binaries, Alpine"),
+    ("i686-linux-musl", "Linux x86-32 (musl libc) — lightweight systems"),
+    ("x86_64-windows-msvc", "Windows x86-64 (MSVC) — native Windows apps"),
+    ("x86_64-windows-gnu", "Windows x86-64 (MinGW) — GNU toolchain"),
+    ("x86_64-apple-darwin", "macOS x86-64 — Intel Macs"),
+    ("x86_64-unknown-freebsd", "FreeBSD x86-64 — server/workstation BSD"),
+    ("x86_64-unknown-linux-android", "Android x86-64 — emulator, x86 devices"),
 
-    println!(
-        "  {} {} Pick a platform and I’ll play along",
-        "›".bold().bright_green(),
-        "--target <triple>".bold().bright_yellow()
-    );
-    for (triple, desc) in &[
-        (
-            "x86_64-linux-gnu",
-            "Classic Linux 64-bit — like jeans, but for compilers",
-        ),
-        (
-            "aarch64-linux-gnu",
-            "ARM64 Linux — for your Raspberry dreams",
-        ),
-        (
-            "x86_64-windows-msvc",
-            "Windows x64 (MSVC) — serious business",
-        ),
-        (
-            "aarch64-windows-msvc",
-            "Windows ARM64 — the quiet revolution",
-        ),
-        ("x86_64-macos", "macOS x64 — yes, I speak Apple"),
-        ("armv7-linux-gnueabihf", "ARM32 Linux — legacy vibes"),
-        ("riscv64-linux-gnu", "RISC-V — cutting edge and proud of it"),
-    ] {
+    // ARM64 (AArch64)
+    ("aarch64-linux-gnu", "Linux ARM64 — modern servers, Raspberry Pi 4+"),
+    ("aarch64-linux-musl", "Linux ARM64 (musl libc) — static binaries"),
+    ("aarch64-apple-darwin", "macOS ARM64 — Apple Silicon Macs"),
+    ("aarch64-apple-ios", "iOS ARM64 — iPhones/iPads"),
+    ("aarch64-windows-msvc", "Windows ARM64 — Surface Pro X"),
+    ("aarch64-unknown-freebsd", "FreeBSD ARM64 — embedded/servers"),
+    ("aarch64-unknown-linux-android", "Android ARM64 — modern devices"),
+
+    // ARMv7 (32-bit)
+    ("armv7-linux-gnueabihf", "Linux ARMv7 (hard-float) — older SBCs like Pi 3"),
+    ("armv7-linux-androideabi", "Android ARMv7 — legacy devices"),
+    ("armv7-unknown-linux-gnueabihf", "Linux ARMv7 (generic)"),
+
+    // RISC-V
+    ("riscv64gc-linux-gnu", "Linux RISC-V 64-bit — open ISA for hardware"),
+    ("riscv64-unknown-freebsd", "FreeBSD RISC-V 64-bit — servers/embedded"),
+
+    // MIPS
+    ("mips64-linux-gnu", "Linux MIPS64 — legacy systems"),
+    ("mips64-unknown-linux-gnu", "Linux MIPS64 (generic)"),
+
+    // PowerPC
+    ("ppc64-linux-gnu", "Linux PowerPC 64-bit — IBM POWER systems"),
+    ("ppc64-unknown-linux-gnu", "Linux PowerPC 64-bit (generic)"),
+
+    // SPARC
+    ("sparc64-linux-gnu", "Linux SPARC 64-bit — legacy Oracle/Sun systems"),
+
+    // SystemZ (s390x)
+    ("s390x-linux-gnu", "Linux s390x — IBM Z mainframes"),
+
+    // LoongArch
+    ("loongarch64-linux-gnu", "Linux LoongArch 64-bit — Loongson processors"),
+
+    // WebAssembly (WASM)
+    ("wasm32-unknown-unknown", "WebAssembly 32-bit — browser/desktop plugins"),
+    ("wasm64-unknown-unknown", "WebAssembly 64-bit — large memory support"),
+
+    // Embedded Systems & Microcontrollers
+    ("thumbv7m-none-eabi", "ARM Cortex-M3 — bare-metal microcontrollers"),
+    ("thumbv7em-none-eabi", "ARM Cortex-M4 — DSP-enabled microcontrollers"),
+    ("thumbv8m.base-none-eabi", "ARMv8-M Baseline — Cortex-M55"),
+    ("msp430-unknown-none", "TI MSP430 — ultra-low-power MCUs"),
+    ("hexagon-unknown-linux-gnueabi", "Qualcomm Hexagon DSP — mobile/heterogeneous computing"),
+
+    // Specialized Targets
+    ("nvptx64-nvidia-cuda", "NVIDIA PTX 64-bit — CUDA GPU programming"),
+    ("spir64-unknown-unknown", "SPIR 64-bit — OpenCL/SPIR-V"),
+    ("bpf-linux", "eBPF — Linux kernel tracing/monitoring"),
+];
+    for (triple, desc) in targets {
         println!(
             "     {} {}   {}",
             "•".bright_black(),
@@ -142,24 +153,24 @@ pub fn print_help() {
         );
     }
 
-    println!(
-        "  {} {} Tell me which CPU to impress",
-        "›".bold().bright_green(),
-        "--mcpu <name>".bold().bright_yellow()
-    );
-    for cpu in &["native", "haswell", "skylake", "cortex-a53", "cortex-a72"] {
+    // CPUs
+    println!("\n{}", "  CPUs for --mcpu:".italic().bright_black());
+    for cpu in &[
+        "native",
+        "haswell",
+        "skylake",
+        "cortex-a53",
+        "cortex-a72",
+    ] {
         println!(
             "     {} {}",
             "•".bright_black(),
-            cpu.bold().bright_magenta()
+            (*cpu).bold().bright_magenta()
         );
     }
 
-    println!(
-        "  {} {} Architecture? I speak several dialects",
-        "›".bold().bright_green(),
-        "--march <arch>".bold().bright_yellow()
-    );
+    // Architectures
+    println!("\n{}", "  Architectures for --march:".italic().bright_black());
     for arch in &["native", "x86-64", "armv8-a", "armv7-a", "riscv64"] {
         println!(
             "     {} {}",
@@ -168,11 +179,8 @@ pub fn print_help() {
         );
     }
 
-    println!(
-        "  {} {} Runtime checks? Say no more",
-        "›".bold().bright_green(),
-        "--sanitize <kind>".bold().bright_yellow()
-    );
+    // Sanitizers
+    println!("\n{}", "  Sanitizers for --sanitize:".italic().bright_black());
     for kind in &["address", "undefined", "thread", "memory", "leak"] {
         println!(
             "     {} {}",
@@ -181,97 +189,49 @@ pub fn print_help() {
         );
     }
 
-    println!(
-        "  {} {} Want me to think ahead? I'll optimize across files",
-        "›".bold().bright_green(),
-        "--lto [thin|full]".bold().bright_yellow()
-    );
-    println!(
-        "     {} {}   Sleek and quick",
-        "•".bright_black(),
-        "thin".bold().bright_magenta()
-    );
-    println!(
-        "     {} {}   Full-on mega brain mode",
-        "•".bright_black(),
-        "full".bold().bright_magenta()
-    );
-
-    println!(
-        "  {} {} I’ll keep my Zig mess here",
-        "›".bold().bright_green(),
-        "--cache-dir <path>".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I'll inject my secret tests into your build",
-        "›".bold().bright_green(),
-        "--test".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} Experimental: I’ll emit Zig instead of C (don’t judge)",
-        "›".bold().bright_green(),
-        "--trans-zig".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} I’ll call the result this fancy name",
-        "›".bold().bright_green(),
-        "--out <file>".bold().bright_yellow()
-    );
-    println!(
-        "  {} {} That’s me! You're reading it",
-        "›".bold().bright_green(),
-        "-h, --help".bold().bright_yellow()
-    );
-
-    println!();
+    // LTO
+    println!("\n{}", "  Link-Time Optimization:".italic().bright_black());
+    for kind in &["thin", "full"] {
+        println!(
+            "     {} {}   {}",
+            "•".bright_black(),
+            kind.bold().bright_magenta(),
+            if *kind == "thin" {
+                "Sleek and quick"
+            } else {
+                "Full-on mega brain mode"
+            }
+        );
+    }
 
     // Commands
-    println!("{}", "COMMANDS".bold().bright_blue());
+    println!("\n{}", "COMMANDS".bold().bright_blue());
     println!(
-        "  {} {} Compile your stuff. Straightforward. I got you.",
+        "  {} {} {}",
         "→".bold().bright_magenta(),
-        "build".bold().bright_green()
+        "build".bold().bright_green(),
+        "Compile your stuff. Straightforward. I got you."
     );
-    println!();
 
     // Examples
-    println!("{}", "EXAMPLES".bold().bright_blue());
-    println!("{}", "  (Format: command → source file → options. Always. No exceptions. Don't try to be fancy.)".italic().bright_black());
+    println!("\n{}", "EXAMPLES".bold().bright_blue());
+    println!(
+        "{}",
+        "  (Format: command → source file → options. Always. No exceptions. Don't try to be fancy.)"
+            .italic()
+            .bright_black()
+    );
 
     let examples = vec![
         ("sip build main.sip", "Build it like it’s hot"),
-        (
-            "sip build foo.sip -O 2 --static",
-            "Speedy and self-contained — no strings attached",
-        ),
-        (
-            "sip build foo.sip -O 3 -DDEBUG=1",
-            "Tiny binary, big brain debugging",
-        ),
-        (
-            "sip build foo.sip --mcpu native",
-            "I'll optimize it for *your* CPU — because I care",
-        ),
-        (
-            "sip build foo.sip --march armv8-a",
-            "Cross-build to ARM like a boss",
-        ),
-        (
-            "sip build foo.sip --sanitize address",
-            "Got bugs? Let me sniff 'em out",
-        ),
-        (
-            "sip build foo.sip --lto full",
-            "Full link-time optimization — I'm seeing the whole picture",
-        ),
-        (
-            "sip build foo.sip --target x86_64-macos",
-            "I’m pretending to be a Mac today",
-        ),
-        (
-            "sip build foo.sip --trans-zig",
-            "Trying out a Ziggy path — experimental stuff ahead",
-        ),
+        ("sip build foo.sip -O 2 --static", "Speedy and self-contained — no strings attached"),
+        ("sip build foo.sip -O 3 -DDEBUG=1", "Tiny binary, big brain debugging"),
+        ("sip build foo.sip --mcpu native", "I'll optimize it for *your* CPU — because I care"),
+        ("sip build foo.sip --march armv8-a", "Cross-build to ARM like a boss"),
+        ("sip build foo.sip --sanitize address", "Got bugs? Let me sniff 'em out"),
+        ("sip build foo.sip --lto full", "Full link-time optimization — I'm seeing the whole picture"),
+        ("sip build foo.sip --target x86_64-macos", "I’m pretending to be a Mac today"),
+        ("sip build foo.sip --trans-zig", "Trying out a Ziggy path — experimental stuff ahead"),
     ];
 
     for (cmd, note) in examples {

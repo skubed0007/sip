@@ -116,24 +116,6 @@ fn parse_args(args: Vec<String>) -> (Options, String, String) {
     (options, command, source_file)
 }
 
-fn check_target_exists(target: &str) -> bool {
-    let output = Command::new("zig")
-        .arg("targets")
-        .output()
-        .expect("Failed to get Zig targets");
-
-    if !output.status.success() {
-        eprintln!(
-            "{}: {}",
-            "Failed to check targets".red(),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        exit(1);
-    }
-
-    String::from_utf8_lossy(&output.stdout).contains(target)
-}
-
 fn build(options: &Options, source_file: &str) {
     print!("\r{}", "Reading source file...".cyan());
     stdout().flush().unwrap();
@@ -195,18 +177,10 @@ fn build(options: &Options, source_file: &str) {
         return;
     }
 
-    if let Some(target) = &options.target {
-        if !check_target_exists(target) {
-            eprintln!("{}: Target '{}' not found in Zig", "Error".red(), target);
-            return;
-        }
-    }
-
-    print!("\r{}", "Compiling with Zig...".cyan());
+    print!("\r{}", "Compiling with Clang...".cyan());
     stdout().flush().unwrap();
 
-    let mut cmd = Command::new("zig");
-    cmd.arg("cc");
+    let mut cmd = Command::new("clang");
 
     if let Some(opt) = options.opt {
         cmd.arg(format!("-O{}", opt));
@@ -229,38 +203,29 @@ fn build(options: &Options, source_file: &str) {
     if let Some(t) = &options.target {
         cmd.arg(format!("--target={}", t));
     }
-    for m in &options.define_macro {
+    if let Some(m) = &options.define_macro {
         cmd.arg(format!("-D{}", m));
     }
-    for inc in &options.include_dir {
+    if let Some(inc) = &options.include_dir {
         cmd.arg(format!("-I{}", inc));
     }
-    for lib_path in &options.library_search_path {
+    if let Some(lib_path) = &options.library_search_path {
         cmd.arg(format!("-L{}", lib_path));
     }
-    for lib in &options.library {
+    if let Some(lib) = &options.library {
         cmd.arg(format!("-l{}", lib));
     }
     if let Some(cpu) = &options.cpu {
-        cmd.arg(format!("--mcpu={}", cpu));
+        cmd.arg(format!("-mcpu={}", cpu));
     }
     if let Some(arch) = &options.arch {
-        cmd.arg(format!("--march={}", arch));
+        cmd.arg(format!("-march={}", arch));
     }
     if let Some(sanitize) = &options.sanitize {
-        cmd.arg(format!("--sanitize={}", sanitize));
+        cmd.arg(format!("-fsanitize={}", sanitize));
     }
     if let Some(lto) = &options.lto {
-        cmd.arg(format!("--lto={}", lto));
-    }
-    if let Some(cache_dir) = &options.cache_dir {
-        cmd.arg(format!("--cache-dir={}", cache_dir));
-    }
-    if options.test {
-        cmd.arg("--test");
-    }
-    if options.trans_zig {
-        cmd.arg("--trans-zig");
+        cmd.arg(format!("-flto={}", lto));
     }
 
     cmd.arg(&c_file_path);
@@ -278,7 +243,7 @@ fn build(options: &Options, source_file: &str) {
             eprintln!("\n{}: {}", "Build failed with status".red(), status);
         }
         Err(e) => {
-            eprintln!("\n{}: {}", "Failed to execute Zig".red(), e);
+            eprintln!("\n{}: {}", "Failed to execute Clang".red(), e);
         }
     }
 
