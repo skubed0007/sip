@@ -1,21 +1,21 @@
-use std::env;
-use std::fs::{self, File, remove_file};
-use std::io::{self, stdout, BufReader, Read, Write};
-use std::process::{Command, exit};
 use codegen::codegen::cgen;
 use colored::*;
 use errt::d1::DErr;
 use help::print_help;
 use lexer::lex;
 use parsers::parse;
+use std::env;
+use std::fs::{self, File, remove_file};
+use std::io::{BufReader, Read, Write, stdout};
+use std::process::{Command, exit};
 
-pub mod parsers;
-pub mod codegen;
-pub mod lexer;
-pub mod tokdefs;
-pub mod errt;
 pub mod ast;
+pub mod codegen;
+pub mod errt;
 pub mod help;
+pub mod lexer;
+pub mod parsers;
+pub mod tokdefs;
 
 #[derive(Debug)]
 pub struct Options {
@@ -123,7 +123,11 @@ fn check_target_exists(target: &str) -> bool {
         .expect("Failed to get Zig targets");
 
     if !output.status.success() {
-        eprintln!("{}: {}", "Failed to check targets".red(), String::from_utf8_lossy(&output.stderr));
+        eprintln!(
+            "{}: {}",
+            "Failed to check targets".red(),
+            String::from_utf8_lossy(&output.stderr)
+        );
         exit(1);
     }
 

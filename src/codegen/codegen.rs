@@ -1,4 +1,4 @@
-use crate::ast::{Var, NT};
+use crate::ast::{NT, Var};
 
 pub fn cgen(ast: &[NT]) -> String {
     let mut main_body = String::with_capacity(1024); // Pre-allocate memory for the main body
@@ -23,7 +23,7 @@ pub fn cgen(ast: &[NT]) -> String {
                         main_body.push_str(", ");
                     }
                     first = false;
-                    
+
                     match arg {
                         Var::F32(val, _) => main_body.push_str(&val.to_string()),
                         Var::I32(val, _) => main_body.push_str(&val.to_string()),
@@ -38,17 +38,17 @@ pub fn cgen(ast: &[NT]) -> String {
                                 }
                                 first = false;
                                 first_in_list = false;
-                        
+
                                 match item {
                                     Var::F32(val, _) => main_body.push_str(&val.to_string()),
                                     Var::I32(val, _) => main_body.push_str(&val.to_string()),
-                                    Var::Generic(name) => main_body.push_str(&name.to_string()),
-                                    _ => main_body.push_str("0"), // fallback
+                                    Var::Generic(name) => main_body.push_str(name.as_ref()),
+                                    _ => main_body.push('0'), // fallback
                                 }
                             }
                         }
-                        
-                        _ => main_body.push_str("0"), // For unsupported types, use 0
+
+                        _ => main_body.push('0'), // For unsupported types, use 0
                     }
                 }
 
@@ -61,7 +61,7 @@ pub fn cgen(ast: &[NT]) -> String {
 
     // Assemble the final C code
     let mut full_code = String::with_capacity(headers.len() + main_body.len() + 50);
-    full_code.push_str(&headers.trim_end());
+    full_code.push_str(headers.trim_end());
     full_code.push_str("\nint main() {\n");
     full_code.push_str(&main_body);
     full_code.push_str("}\n");

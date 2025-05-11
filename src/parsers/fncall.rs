@@ -49,13 +49,7 @@ pub fn fncallp(
             return Err(errs);
         }
         None => {
-            errs.push(SErr::new(
-                ErrT::UnexpectedEof,
-                0,
-                0,
-                0,
-                file.to_string(),
-            ));
+            errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
             return Err(errs);
         }
     }
@@ -79,13 +73,7 @@ pub fn fncallp(
                     return Err(errs);
                 }
                 None => {
-                    errs.push(SErr::new(
-                        ErrT::UnexpectedEof,
-                        0,
-                        0,
-                        0,
-                        file.to_string(),
-                    ));
+                    errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                     return Err(errs);
                 }
             }
@@ -110,24 +98,12 @@ pub fn fncallp(
                             var_args.push(arg);
                             iter.next();
                         } else {
-                            errs.push(SErr::new(
-                                ErrT::UnexpectedEof,
-                                0,
-                                0,
-                                0,
-                                file.to_string(),
-                            ));
+                            errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                             return Err(errs);
                         }
                     }
                     None => {
-                        errs.push(SErr::new(
-                            ErrT::UnexpectedEof,
-                            0,
-                            0,
-                            0,
-                            file.to_string(),
-                        ));
+                        errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                         return Err(errs);
                     }
                 }
@@ -141,13 +117,7 @@ pub fn fncallp(
         let tok = match iter.peek().cloned() {
             Some(t) => t,
             None => {
-                errs.push(SErr::new(
-                    ErrT::UnexpectedEof,
-                    0,
-                    0,
-                    0,
-                    file.to_string(),
-                ));
+                errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                 return Err(errs);
             }
         };
@@ -158,13 +128,7 @@ pub fn fncallp(
                 Some(arg)
             }
             Ok(None) => {
-                errs.push(SErr::new(
-                    ErrT::UnexpectedEof,
-                    0,
-                    0,
-                    0,
-                    file.to_string(),
-                ));
+                errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
                 return Err(errs);
             }
             Err(e) => return Err(e),
@@ -242,13 +206,7 @@ pub fn fncallp(
                 return Err(errs);
             }
         } else {
-            errs.push(SErr::new(
-                ErrT::UnexpectedEof,
-                0,
-                0,
-                0,
-                file.to_string(),
-            ));
+            errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
             return Err(errs);
         }
     }
@@ -267,13 +225,7 @@ pub fn fncallp(
             ));
         }
     } else {
-        errs.push(SErr::new(
-            ErrT::UnexpectedEof,
-            0,
-            0,
-            0,
-            file.to_string(),
-        ));
+        errs.push(SErr::new(ErrT::UnexpectedEof, 0, 0, 0, file.to_string()));
     }
 
     if !errs.is_empty() {
@@ -303,9 +255,10 @@ fn parse_argument_token(
                 Ok(Some(Var::Generic(SmallString::from(val.clone()))))
             }
         }
-        TT::IDENT(IDT::DQ, ref val) => {
-            Ok(Some(Var::Generic(SmallString::from(format!("\"{}\"", val)))))
-        }
+        TT::IDENT(IDT::DQ, ref val) => Ok(Some(Var::Generic(SmallString::from(format!(
+            "\"{}\"",
+            val
+        ))))),
         TT::LBigB => {
             let mut list_items = Vec::new();
             let mut current_tok = iter.next();
