@@ -6,7 +6,6 @@ use crate::{
 use smallstr::SmallString;
 use std::iter::Peekable;
 
-#[allow(dead_code, unused)]
 pub fn fncallp(
     iter: &mut Peekable<std::vec::IntoIter<Tok>>,
     fnname: String,
@@ -14,19 +13,21 @@ pub fn fncallp(
     file: &String,
 ) -> Result<NT, Vec<SErr>> {
     let mut errs = Vec::new();
-    let mut args: Vec<Var> = Vec::new();
+    let mut args = Vec::new();
+    let mut is_variadic = false;
 
-    let mut extern_decl = None;
-    for node in ast {
+    // Find extern declaration
+    let (expected_params, _) = match ast.iter().find_map(|node| {
         if let NT::Extern(name, params, c_name, _) = node {
-            if name.as_str() == fnname {
-                extern_decl = Some((params.clone(), c_name.clone()));
-                break;
+            if name == &fnname {
+                Some((params.clone(), c_name.clone()))
+            } else {
+                None
             }
+        } else {
+            None
         }
-    }
-
-    let (expected_params, _) = match extern_decl {
+    }) {
         Some(decl) => decl,
         None => {
             errs.push(SErr::new(ErrT::UnexpectTok, 0, 0, 0, file.to_string()));
@@ -34,8 +35,9 @@ pub fn fncallp(
         }
     };
 
+    // Expect '('
     match iter.next() {
-        Some(tok) if matches!(tok.tt, TT::LSmallB) => {}
+        Some(tok) if tok.tt == TT::LSmallB => {}
         Some(tok) => {
             errs.push(SErr::new(
                 ErrT::UnexpectTok,
@@ -58,14 +60,15 @@ pub fn fncallp(
         }
     }
 
-    let mut current_tok = iter.next();
+    // Parse parameters
     for (param_idx, expected_param) in expected_params.iter().enumerate() {
+        // Handle comma between params
         if param_idx > 0 {
-            match current_tok {
-                Some(ref tok) if matches!(tok.tt, TT::Comma) => {
-                    current_tok = iter.next();
+            match iter.peek() {
+                Some(tok) if tok.tt == TT::Comma => {
+                    iter.next();
                 }
-                Some(ref tok) => {
+                Some(tok) => {
                     errs.push(SErr::new(
                         ErrT::UnexpectTok,
                         tok.line,
@@ -88,23 +91,55 @@ pub fn fncallp(
             }
         }
 
-        let arg = match current_tok {
-            Some(ref tok) => match parse_argument_token(tok, iter, file)? {
-                Some(arg) => {
-                    current_tok = iter.next();
-                    arg
+        // Handle variadic
+        if let Var::Variadic = expected_param {
+            let mut var_args = Vec::new();
+            is_variadic = true;
+
+            loop {
+                match iter.peek().cloned() {
+                    Some(tok) if tok.tt == TT::RSmallB => {
+                        iter.next();
+                        break;
+                    }
+                    Some(tok) if tok.tt == TT::Comma => {
+                        iter.next();
+                    }
+                    Some(tok) => {
+                        if let Some(arg) = parse_argument_token(&tok, iter, file)? {
+                            var_args.push(arg);
+                            iter.next();
+                        } else {
+                            errs.push(SErr::new(
+                                ErrT::UnexpectedEof,
+                                0,
+                                0,
+                                0,
+                                file.to_string(),
+                            ));
+                            return Err(errs);
+                        }
+                    }
+                    None => {
+                        errs.push(SErr::new(
+                            ErrT::UnexpectedEof,
+                            0,
+                            0,
+                            0,
+                            file.to_string(),
+                        ));
+                        return Err(errs);
+                    }
                 }
-                None => {
-                    errs.push(SErr::new(
-                        ErrT::UnexpectedEof,
-                        0,
-                        0,
-                        0,
-                        file.to_string(),
-                    ));
-                    return Err(errs);
-                }
-            },
+            }
+
+            args.push(Var::List(var_args));
+            break;
+        }
+
+        // Parse fixed param
+        let tok = match iter.peek().cloned() {
+            Some(t) => t,
             None => {
                 errs.push(SErr::new(
                     ErrT::UnexpectedEof,
@@ -117,54 +152,112 @@ pub fn fncallp(
             }
         };
 
-        match expected_param {
-            Var::Generic(_) => args.push(arg),
-            Var::I32(_, _) => {
-                if let Var::I32(a_val, a_name) = arg {
-                    args.push(Var::I32(a_val, a_name));
-                } else {
-                    errs.push(SErr::new(
-                        ErrT::TypeMismatch,
-                        0,
-                        0,
-                        0,
-                        "Expected I32 type".to_owned(),
-                    ));
-                }
+        let parsed = match parse_argument_token(&tok, iter, file) {
+            Ok(Some(arg)) => {
+                iter.next();
+                Some(arg)
             }
-            Var::F32(_, _) => {
-                if let Var::F32(a_val, a_name) = arg {
-                    args.push(Var::F32(a_val, a_name));
-                } else {
-                    errs.push(SErr::new(
-                        ErrT::TypeMismatch,
-                        0,
-                        0,
-                        0,
-                        file.to_string(),
-                    ));
-                }
+            Ok(None) => {
+                errs.push(SErr::new(
+                    ErrT::UnexpectedEof,
+                    0,
+                    0,
+                    0,
+                    file.to_string(),
+                ));
+                return Err(errs);
             }
-            Var::List(items) => {
-                if let Var::List(a_items) = arg {
-                    args.push(Var::List(a_items));
-                } else {
-                    errs.push(SErr::new(
-                        ErrT::TypeMismatch,
-                        0,
-                        0,
-                        0,
-                        file.to_string(),
-                    ));
+            Err(e) => return Err(e),
+        };
+
+        if let Some(arg) = parsed {
+            match expected_param {
+                Var::I32(_, _) => {
+                    if let Var::I32(val, name) = arg {
+                        args.push(Var::I32(val, name));
+                    } else {
+                        errs.push(SErr::new(
+                            ErrT::TypeMismatch,
+                            tok.line,
+                            tok.start,
+                            tok.end,
+                            file.to_string(),
+                        ));
+                    }
                 }
+                Var::F32(_, _) => {
+                    if let Var::F32(val, name) = arg {
+                        args.push(Var::F32(val, name));
+                    } else {
+                        errs.push(SErr::new(
+                            ErrT::TypeMismatch,
+                            tok.line,
+                            tok.start,
+                            tok.end,
+                            file.to_string(),
+                        ));
+                    }
+                }
+                Var::List(_) => {
+                    if let Var::List(items) = arg {
+                        args.push(Var::List(items));
+                    } else {
+                        errs.push(SErr::new(
+                            ErrT::TypeMismatch,
+                            tok.line,
+                            tok.start,
+                            tok.end,
+                            file.to_string(),
+                        ));
+                    }
+                }
+                Var::Generic(_) => args.push(arg),
+                _ => {}
             }
-            Var::Variadic => args.push(Var::Variadic),
+        } else {
+            errs.push(SErr::new(
+                ErrT::UnexpectedEof,
+                tok.line,
+                tok.start,
+                tok.end,
+                file.to_string(),
+            ));
+            return Err(errs);
         }
     }
 
-    match current_tok {
-        Some(ref tok) if matches!(tok.tt, TT::RSmallB) => {}
-        Some(ref tok) => {
+    // Handle closing ')'
+    if !is_variadic {
+        if let Some(tok) = iter.peek() {
+            if tok.tt == TT::RSmallB {
+                iter.next();
+            } else {
+                errs.push(SErr::new(
+                    ErrT::UnexpectTok,
+                    tok.line,
+                    tok.start,
+                    tok.end,
+                    file.to_string(),
+                ));
+                return Err(errs);
+            }
+        } else {
+            errs.push(SErr::new(
+                ErrT::UnexpectedEof,
+                0,
+                0,
+                0,
+                file.to_string(),
+            ));
+            return Err(errs);
+        }
+    }
+
+    // Expect ';'
+    if let Some(tok) = iter.peek() {
+        if tok.tt == TT::SemiC {
+            iter.next();
+        } else {
             errs.push(SErr::new(
                 ErrT::UnexpectTok,
                 tok.line,
@@ -173,27 +266,14 @@ pub fn fncallp(
                 file.to_string(),
             ));
         }
-        None => {
-            errs.push(SErr::new(
-                ErrT::UnexpectedEof,
-                0,
-                0,
-                0,
-                file.to_string(),
-            ));
-        }
-    }
-
-    if let Some(next) = iter.next() {
-        if next.tt != TT::SemiC {
-            errs.push(SErr::new(
-                ErrT::UnexpectTok,
-                next.line,
-                next.start,
-                next.end,
-                file.to_string(),
-            ));
-        }
+    } else {
+        errs.push(SErr::new(
+            ErrT::UnexpectedEof,
+            0,
+            0,
+            0,
+            file.to_string(),
+        ));
     }
 
     if !errs.is_empty() {
@@ -214,9 +294,8 @@ fn parse_argument_token(
         TT::NUM(NUMT::F(val)) => Ok(Some(Var::F32(val, SmallString::new()))),
         TT::IDENT(IDT::NQ, ref val) => {
             if let Some(next) = iter.peek() {
-                if matches!(next.tt, TT::LSmallB) {
-                    let val = format!("'{}'", val);
-                    Ok(Some(Var::Generic(SmallString::from(val))))
+                if next.tt == TT::LSmallB {
+                    Ok(Some(Var::Generic(SmallString::from(format!("'{}'", val)))))
                 } else {
                     Ok(Some(Var::Generic(SmallString::from(val.clone()))))
                 }
@@ -225,8 +304,7 @@ fn parse_argument_token(
             }
         }
         TT::IDENT(IDT::DQ, ref val) => {
-            let val = format!("\"{}\"", val);
-            Ok(Some(Var::Generic(SmallString::from(val))))
+            Ok(Some(Var::Generic(SmallString::from(format!("\"{}\"", val)))))
         }
         TT::LBigB => {
             let mut list_items = Vec::new();
@@ -234,13 +312,8 @@ fn parse_argument_token(
 
             loop {
                 match current_tok {
-                    Some(ref tok) if matches!(tok.tt, TT::RBigB) => {
-                        current_tok = iter.next();
-                        break;
-                    }
-                    Some(ref tok) if matches!(tok.tt, TT::Comma) => {
-                        current_tok = iter.next();
-                    }
+                    Some(ref tok) if tok.tt == TT::RBigB => break,
+                    Some(ref tok) if tok.tt == TT::Comma => current_tok = iter.next(),
                     Some(ref tok) => {
                         if let Some(item) = parse_argument_token(tok, iter, file)? {
                             list_items.push(item);

@@ -30,6 +30,24 @@ pub fn cgen(ast: &[NT]) -> String {
                         Var::Generic(name) => {
                             main_body.push_str(&format!("{}", name));
                         }
+                        Var::List(items) => {
+                            let mut first_in_list = true;
+                            for item in items {
+                                if !first && !first_in_list {
+                                    main_body.push_str(", ");
+                                }
+                                first = false;
+                                first_in_list = false;
+                        
+                                match item {
+                                    Var::F32(val, _) => main_body.push_str(&val.to_string()),
+                                    Var::I32(val, _) => main_body.push_str(&val.to_string()),
+                                    Var::Generic(name) => main_body.push_str(&name.to_string()),
+                                    _ => main_body.push_str("0"), // fallback
+                                }
+                            }
+                        }
+                        
                         _ => main_body.push_str("0"), // For unsupported types, use 0
                     }
                 }
