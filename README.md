@@ -1,4 +1,4 @@
-<img src="logo.svg" alt="Sip" width="200">
+<img src="logo.png" alt="Sip" width="200">
 
 # Sip Programming Language
 **Sip** is a lightweight, blazingly fast systems programming language.  
