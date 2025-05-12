@@ -5,7 +5,7 @@ pub fn print_help() {
     println!(
         "{} {}",
         "SIP".bold().bright_cyan(),
-        "— a blazing-fast, C-like language that doesn’t mess around"
+        "— a blazing-fast, C-like language that doesn't mess around"
             .italic()
             .bright_black()
     );
@@ -33,24 +33,28 @@ pub fn print_help() {
         ("--retainc", "I'll keep the C file around, like a good packrat"),
         ("-O <n>, --opt <n>", "Tell me how hard to flex my optimizer muscles"),
         ("-g, --debug", "I'll sprinkle in debug symbols — detective mode activated"),
-        ("-Wall", "I’ll warn you about *everything*, even your bad life choices (jk)"),
+        ("-Wall", "I'll warn you about *everything*, even your bad life choices (jk)"),
         ("-Werror", "No mercy — warnings become errors"),
         ("-static", "I'll glue everything into one solid binary"),
         ("-fPIC, --pic", "Position-independent code — I can run from anywhere"),
         ("-D<macro>[=<val>]", "Need a macro? I'll define it, no questions asked"),
         ("-I<path>", "I'll look here for includes — like a lost tourist with a map"),
-        ("-L<path>", "Library hunt? I’ll search here too"),
+        ("-L<path>", "Library hunt? I'll search here too"),
         ("-l<lib>", "I'll link your code to this fine library right here"),
-        ("--target <triple>", "Pick a platform and I’ll play along"),
+        ("--target <triple>", "Pick a platform and I'll play along"),
         ("--mcpu <name>", "Tell me which CPU to impress"),
         ("--march <arch>", "Architecture? I speak several dialects"),
         ("--sanitize <kind>", "Runtime checks? Say no more"),
         ("--lto [thin|full]", "Want me to think ahead? I'll optimize across files"),
-        ("--cache-dir <path>", "I’ll keep my Zig mess here"),
+        ("--cache-dir <path>", "I'll keep my Zig mess here"),
         ("--test", "I'll inject my secret tests into your build"),
-        ("--trans-zig", "Experimental: I’ll emit Zig instead of C (don’t judge)"),
-        ("--out <file>", "I’ll call the result this fancy name"),
-        ("-h, --help", "That’s me! You're reading it"),
+        ("--trans-zig", "Experimental: I'll emit Zig instead of C (don't judge)"),
+        ("--out <file>", "I'll call the result this fancy name"),
+        ("--zig-cc", "Use Zig's C compiler instead of Clang — for that extra Ziggy flavor"),
+        ("--zig-optimize <level>", "Zig-specific optimization level (0-3)"),
+        ("--zig-cpu-features <features>", "Enable specific CPU features for Zig compilation"),
+        ("--zig-no-libc", "Don't link libc when using Zig CC — for bare metal fun"),
+        ("-h, --help", "That's me! You're reading it"),
     ];
 
     for (opt, desc) in opts {
@@ -223,15 +227,18 @@ pub fn print_help() {
     );
 
     let examples = vec![
-        ("sip build main.sip", "Build it like it’s hot"),
+        ("sip build main.sip", "Build it like it's hot"),
         ("sip build foo.sip -O 2 --static", "Speedy and self-contained — no strings attached"),
         ("sip build foo.sip -O 3 -DDEBUG=1", "Tiny binary, big brain debugging"),
         ("sip build foo.sip --mcpu native", "I'll optimize it for *your* CPU — because I care"),
         ("sip build foo.sip --march armv8-a", "Cross-build to ARM like a boss"),
         ("sip build foo.sip --sanitize address", "Got bugs? Let me sniff 'em out"),
         ("sip build foo.sip --lto full", "Full link-time optimization — I'm seeing the whole picture"),
-        ("sip build foo.sip --target x86_64-macos", "I’m pretending to be a Mac today"),
+        ("sip build foo.sip --target x86_64-macos", "I'm pretending to be a Mac today"),
         ("sip build foo.sip --trans-zig", "Trying out a Ziggy path — experimental stuff ahead"),
+        ("sip build foo.sip --zig-cc --zig-optimize 3", "Zig CC with maximum optimization — zoom zoom!"),
+        ("sip build foo.sip --zig-cc --zig-cpu-features +avx2,+fma", "Zig CC with specific CPU features enabled"),
+        ("sip build foo.sip --zig-cc --zig-no-libc", "Bare metal compilation with Zig CC — no libc crutches"),
     ];
 
     for (cmd, note) in examples {

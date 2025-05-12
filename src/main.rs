@@ -41,6 +41,10 @@ pub struct Options {
     pub trans_zig: bool,
     pub out: Option<String>,
     pub retain_c: bool,
+    pub use_zig_cc: bool,
+    pub zig_optimize: Option<String>,
+    pub zig_cpu_features: Option<String>,
+    pub zig_link_libc: bool,
 }
 
 fn parse_args(args: Vec<String>) -> (Options, String, String) {
@@ -73,6 +77,10 @@ fn parse_args(args: Vec<String>) -> (Options, String, String) {
         trans_zig: false,
         out: None,
         retain_c: false,
+        use_zig_cc: false,
+        zig_optimize: None,
+        zig_cpu_features: None,
+        zig_link_libc: true,
     };
 
     let command = args[1].clone();
@@ -106,6 +114,10 @@ fn parse_args(args: Vec<String>) -> (Options, String, String) {
             "--trans-zig" => options.trans_zig = true,
             "--out" => options.out = iter.next(),
             "--retainc" => options.retain_c = true,
+            "--zig-cc" => options.use_zig_cc = true,
+            "--zig-optimize" => options.zig_optimize = iter.next(),
+            "--zig-cpu-features" => options.zig_cpu_features = iter.next(),
+            "--zig-no-libc" => options.zig_link_libc = false,
             _ => {
                 eprintln!("{}: {}", "Unknown option".red(), arg);
                 exit(1);
@@ -177,55 +189,117 @@ fn build(options: &Options, source_file: &str) {
         return;
     }
 
-    print!("\r{}", "Compiling with Clang...".cyan());
+    print!("\r{}", if options.use_zig_cc { "Compiling with Zig CC..." } else { "Compiling with Clang..." }.cyan());
     stdout().flush().unwrap();
 
-    let mut cmd = Command::new("clang");
+    let mut cmd = if options.use_zig_cc {
+        Command::new("zig")
+    } else {
+        Command::new("clang")
+    };
 
-    if let Some(opt) = options.opt {
-        cmd.arg(format!("-O{}", opt));
-    }
-    if options.debug {
-        cmd.arg("-g");
-    }
-    if options.all_warnings {
-        cmd.arg("-Wall");
-    }
-    if options.warnings_as_errors {
-        cmd.arg("-Werror");
-    }
-    if options.pic {
-        cmd.arg("-fPIC");
-    }
-    if options.static_link {
-        cmd.arg("-static");
-    }
-    if let Some(t) = &options.target {
-        cmd.arg(format!("--target={}", t));
-    }
-    if let Some(m) = &options.define_macro {
-        cmd.arg(format!("-D{}", m));
-    }
-    if let Some(inc) = &options.include_dir {
-        cmd.arg(format!("-I{}", inc));
-    }
-    if let Some(lib_path) = &options.library_search_path {
-        cmd.arg(format!("-L{}", lib_path));
-    }
-    if let Some(lib) = &options.library {
-        cmd.arg(format!("-l{}", lib));
-    }
-    if let Some(cpu) = &options.cpu {
-        cmd.arg(format!("-mcpu={}", cpu));
-    }
-    if let Some(arch) = &options.arch {
-        cmd.arg(format!("-march={}", arch));
-    }
-    if let Some(sanitize) = &options.sanitize {
-        cmd.arg(format!("-fsanitize={}", sanitize));
-    }
-    if let Some(lto) = &options.lto {
-        cmd.arg(format!("-flto={}", lto));
+    if options.use_zig_cc {
+        cmd.arg("cc");
+        
+        if let Some(opt) = options.zig_optimize.as_ref() {
+            cmd.arg(format!("-O{}", opt));
+        } else if let Some(opt) = options.opt {
+            cmd.arg(format!("-O{}", opt));
+        }
+        
+        if let Some(features) = &options.zig_cpu_features {
+            cmd.arg(format!("-mcpu={}", features));
+        }
+        
+        if !options.zig_link_libc {
+            cmd.arg("-nostdlib");
+        }
+        
+        if options.debug {
+            cmd.arg("-g");
+        }
+        
+        if options.all_warnings {
+            cmd.arg("-Wall");
+        }
+        
+        if options.warnings_as_errors {
+            cmd.arg("-Werror");
+        }
+        
+        if options.pic {
+            cmd.arg("-fPIC");
+        }
+        
+        if options.static_link {
+            cmd.arg("-static");
+        }
+        
+        if let Some(t) = &options.target {
+            cmd.arg(format!("--target={}", t));
+        }
+        
+        if let Some(m) = &options.define_macro {
+            cmd.arg(format!("-D{}", m));
+        }
+        
+        if let Some(inc) = &options.include_dir {
+            cmd.arg(format!("-I{}", inc));
+        }
+        
+        if let Some(lib_path) = &options.library_search_path {
+            cmd.arg(format!("-L{}", lib_path));
+        }
+        
+        if let Some(lib) = &options.library {
+            cmd.arg(format!("-l{}", lib));
+        }
+    } else {
+        if let Some(opt) = options.opt {
+            cmd.arg(format!("-O{}", opt));
+        }
+        if options.debug {
+            cmd.arg("-g");
+        }
+        if options.all_warnings {
+            cmd.arg("-Wall");
+        }
+        if options.warnings_as_errors {
+            cmd.arg("-Werror");
+        }
+        if options.pic {
+            cmd.arg("-fPIC");
+        }
+        if options.static_link {
+            cmd.arg("-static");
+        }
+        if let Some(t) = &options.target {
+            cmd.arg(format!("--target={}", t));
+        }
+        if let Some(m) = &options.define_macro {
+            cmd.arg(format!("-D{}", m));
+        }
+        if let Some(inc) = &options.include_dir {
+            cmd.arg(format!("-I{}", inc));
+        }
+        if let Some(lib_path) = &options.library_search_path {
+            cmd.arg(format!("-L{}", lib_path));
+        }
+        if let Some(lib) = &options.library {
+            cmd.arg(format!("-l{}", lib));
+        }
+        if let Some(cpu) = &options.cpu {
+            cmd.arg(format!("-mcpu={}", cpu));
+        }
+        if let Some(arch) = &options.arch {
+            cmd.arg(format!("-march={}", arch));
+        }
+        if let Some(sanitize) = &options.sanitize {
+            cmd.arg(format!("-fsanitize={}", sanitize));
+        }
+        if let Some(lto) = &options.lto {
+            cmd.arg(format!("-flto={}", lto));
+        }
     }
 
     cmd.arg(&c_file_path);

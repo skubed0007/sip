@@ -25,9 +25,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.62941974"
-     inkscape:cx="216.07203"
-     inkscape:cy="397.98561"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="383.25187"
+     inkscape:cy="454.66966"
      inkscape:window-width="1920"
      inkscape:window-height="1004"
      inkscape:window-x="0"
@@ -38,120 +38,145 @@
      id="defs2">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient1043">
+       id="linearGradient3721">
       <stop
-         style="stop-color:#e33030;stop-opacity:1;"
+         style="stop-color:#ffdaad;stop-opacity:1;"
          offset="0"
-         id="stop1039" />
+         id="stop3717" />
       <stop
          style="stop-color:#000000;stop-opacity:1;"
          offset="1"
-         id="stop1041" />
+         id="stop3719" />
     </linearGradient>
+    <rect
+       x="871.1245"
+       y="211.13416"
+       width="141.27709"
+       height="218.76921"
+       id="rect1239" />
+    <rect
+       x="111.94462"
+       y="184.09348"
+       width="598.68129"
+       height="594.01683"
+       id="rect1177" />
+    <rect
+       x="113.34525"
+       y="180.17522"
+       width="595.56767"
+       height="600.93633"
+       id="rect1171" />
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient1035">
+       id="linearGradient1109">
       <stop
-         style="stop-color:#d13535;stop-opacity:1;"
+         style="stop-color:#b25151;stop-opacity:1;"
          offset="0"
-         id="stop1031" />
+         id="stop1105" />
       <stop
-         style="stop-color:#000000;stop-opacity:1;"
+         style="stop-color:#d85151;stop-opacity:1;"
          offset="1"
-         id="stop1033" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient1027">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop1023" />
-      <stop
-         style="stop-color:#df3b3b;stop-opacity:1;"
-         offset="1"
-         id="stop1025" />
+         id="stop1107" />
     </linearGradient>
     <rect
-       x="855.25777"
-       y="222.11473"
-       width="291.72512"
-       height="356.44809"
-       id="rect277" />
-    <rect
-       x="30.576762"
-       y="67.724874"
-       width="743.11793"
-       height="984.73531"
-       id="rect113" />
-    <rect
-       x="855.25775"
-       y="222.11473"
-       width="291.72513"
-       height="356.44809"
-       id="rect277-3" />
-    <linearGradient
+       x="93.760388"
+       y="166.73006"
+       width="625.53944"
+       height="648.499"
+       id="rect398" />
+    <radialGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1027"
-       id="linearGradient1029"
-       x1="40.368172"
-       y1="177.39887"
-       x2="178.60817"
-       y2="177.39887"
+       xlink:href="#linearGradient1109"
+       id="radialGradient1111"
+       cx="107.67539"
+       cy="127.57767"
+       fx="107.67539"
+       fy="127.57767"
+       r="82.413132"
+       gradientTransform="matrix(1,0,0,1.0363697,0,-4.639956)"
        gradientUnits="userSpaceOnUse" />
-    <linearGradient
+    <filter
        inkscape:collect="always"
-       xlink:href="#linearGradient1035"
-       id="linearGradient1037"
-       x1="865.24181"
-       y1="326.98949"
-       x2="880.98581"
-       y2="326.98949"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
+       style="color-interpolation-filters:sRGB"
+       id="filter1113"
+       x="-0.03784424"
+       y="-0.03651616"
+       width="1.0756885"
+       height="1.0730323">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="2.5990519"
+         id="feGaussianBlur1115" />
+    </filter>
+    <rect
+       x="871.12451"
+       y="211.13416"
+       width="141.27708"
+       height="218.76921"
+       id="rect1239-6" />
+    <radialGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient1043"
-       id="linearGradient1045"
-       x1="865.62581"
-       y1="370.59356"
-       x2="979.09781"
-       y2="370.59356"
+       xlink:href="#linearGradient3721"
+       id="radialGradient3723"
+       cx="888.981"
+       cy="316.00902"
+       fx="888.981"
+       fy="316.00902"
+       r="7.872"
+       gradientTransform="matrix(1,0,0,9.3902439,0,-2651.3928)"
        gradientUnits="userSpaceOnUse" />
   </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <text
-       xml:space="preserve"
-       transform="matrix(1.2781278,0,0,1.4859793,-32.064007,-134.59392)"
-       id="text111"
-       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:192px;font-family:'FiraCode Nerd Font Propo';-inkscape-font-specification:'FiraCode Nerd Font Propo Light';white-space:pre;shape-inside:url(#rect113);display:inline;fill:url(#linearGradient1029);fill-opacity:1"
+    <rect
+       style="fill:#800000;stroke-width:0.277512"
+       id="rect234"
+       width="180.66766"
+       height="188.91116"
+       x="17.315834"
+       y="34.689728"
+       ry="12.356564"
        inkscape:export-filename="logo.png"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96"><tspan
-         x="30.576172"
-         y="246.51887"
-         id="tspan3354"><tspan
-           style="font-weight:normal;font-family:Orbitron;-inkscape-font-specification:Orbitron"
-           id="tspan3352">S</tspan></tspan></text>
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:url(#radialGradient1111);stroke-width:0.252055;fill-opacity:1;filter:url(#filter1113)"
+       id="rect234-3"
+       width="164.82626"
+       height="170.82094"
+       x="25.262257"
+       y="42.167198"
+       ry="0" />
     <text
        xml:space="preserve"
-       transform="matrix(0.8000088,0,0,0.42271654,-590.20444,-54.904292)"
-       id="text275"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:192px;font-family:Orbitron;-inkscape-font-specification:Orbitron;white-space:pre;shape-inside:url(#rect277);display:inline;fill:url(#linearGradient1037);fill-opacity:1"><tspan
-         x="855.25781"
-         y="400.90949"
-         id="tspan3356">i</tspan></text>
+       transform="scale(0.26458333)"
+       id="text1169"
+       style="fill:#ffff00;-inkscape-font-specification:Orbitron;font-family:Orbitron;font-size:192px;white-space:pre;shape-inside:url(#rect1171)" />
     <text
        xml:space="preserve"
-       transform="matrix(0.5086021,0,0,0.36833421,-355.68636,40.411413)"
-       id="text275-6"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:192px;font-family:'Ubuntu Nerd Font';-inkscape-font-specification:'Ubuntu Nerd Font';white-space:pre;shape-inside:url(#rect277-3);display:inline;fill:url(#linearGradient1045);fill-opacity:1"><tspan
-         x="855.25781"
-         y="404.19356"
-         id="tspan3360"><tspan
-           style="font-family:Orbitron;-inkscape-font-specification:Orbitron"
-           id="tspan3358">p</tspan></tspan></text>
+       transform="matrix(1.0376757,0,0,1.1567045,-87.764185,-213.11333)"
+       id="text1175"
+       style="font-size:192px;font-family:Orbitron;-inkscape-font-specification:Orbitron;white-space:pre;shape-inside:url(#rect1177);fill:#ffff00"><tspan
+         x="111.94531"
+         y="362.88801"
+         id="tspan3900">S</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.43927222,0,0,0.26660557,-320.08767,5.7566944)"
+       id="text1237"
+       style="font-size:192px;font-family:Orbitron;-inkscape-font-specification:Orbitron;white-space:pre;shape-inside:url(#rect1239);fill:#ffdaad;fill-opacity:1"><tspan
+         x="871.125"
+         y="389.92902"
+         id="tspan3902">i</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.27388746,0,0,0.25751463,-114.00684,71.546389)"
+       id="text1237-7"
+       style="font-size:192px;font-family:Orbitron;-inkscape-font-specification:Orbitron;white-space:pre;shape-inside:url(#rect1239-6);display:inline;fill:#ffdaad;fill-opacity:1"><tspan
+         x="871.125"
+         y="389.92902"
+         id="tspan3904">p</tspan></text>
   </g>
 </svg>

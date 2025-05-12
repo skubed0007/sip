@@ -7,81 +7,81 @@ pub fn DErr(err: &SErr, src: &str) {
         ErrT::ExpectName => (
             "expected identifier",
             "Parser expected a variable name or symbol here.",
-            Some("use a valid name: letters, numbers, underscores"),
-            Some("names cannot start with digits"),
+            Some("Use a valid name: letters, numbers, underscores"),
+            Some("Identifiers cannot start with digits"),
         ),
         ErrT::UnexpectTok => (
             "unexpected token",
             "Found an unexpected token in this context.",
-            Some("check for misplaced operators or keywords"),
-            Some("try removing or replacing the highlighted token"),
+            Some("Check for misplaced operators or keywords"),
+            Some("Try removing or replacing the highlighted token"),
         ),
         ErrT::MissingSemicolon => (
             "missing semicolon",
             "Statements must end with a semicolon (`;`).",
-            Some("add `;` at the end of the statement"),
-            Some("every declaration needs a semicolon"),
+            Some("Add `;` at the end of the statement"),
+            Some("Every declaration needs a semicolon"),
         ),
         ErrT::UnterminatedLiteral => (
             "unterminated literal",
             "String or character literal wasn't properly closed.",
-            Some("add a closing quote (`\"`) or apostrophe (`'`)"),
-            Some("escape inner quotes with `\\\"`"),
+            Some("Add a closing quote (`\"`) or apostrophe (`'`)"),
+            Some("Escape inner quotes with `\\\"` or `\\'`"),
         ),
         ErrT::InvalidNumber => (
             "invalid number",
             "Malformed or out-of-range numeric literal.",
-            Some("check digits, radix prefixes, or type suffixes"),
-            Some("like `0xFF`, `42u8`, or `1.5f32`"),
+            Some("Check digits, radix prefixes, or type suffixes"),
+            Some("Example: `0xFF`, `42u8`, or `1.5f32`"),
         ),
         ErrT::UnknownKeyword => (
             "unknown keyword",
             "Unrecognized keyword or directive.",
-            Some("check spelling or refer to documentation"),
-            Some("valid: `extern`, `link`, `fn`, `let`, ..."),
+            Some("Check spelling or refer to documentation"),
+            Some("Valid: `extern`, `clink`, `fn`, `let`, ..."),
         ),
         ErrT::UnmatchedParen => (
             "unmatched parenthesis",
             "Mismatched or unclosed parentheses.",
-            Some("ensure every `(` has a closing `)`"),
-            Some("use an editor with bracket highlighting"),
+            Some("Ensure every `(` has a closing `)`"),
+            Some("Use an editor with bracket highlighting"),
         ),
         ErrT::UnmatchedBrace => (
             "unmatched brace",
             "Mismatched or unclosed `{}` blocks.",
-            Some("ensure every `{` has a closing `}`"),
-            Some("format code with rustfmt or similar tools"),
+            Some("Ensure every `{` has a matching `}`"),
+            Some("Use auto-format tools like rustfmt"),
         ),
         ErrT::UnmatchedBracket => (
             "unmatched bracket",
             "Mismatched or unclosed square brackets.",
-            Some("ensure every `[` has a matching `]`"),
-            Some("common in array literals or indexing"),
+            Some("Ensure every `[` has a matching `]`"),
+            Some("Common in array literals or indexing"),
         ),
         ErrT::ExpectOperator => (
             "expected operator",
             "Expected an arithmetic or logical operator.",
-            Some("insert an operator like `+`, `*`, `==`, etc."),
-            Some("valid: `+ - * / % == != < > <= >=`"),
+            Some("Insert an operator like `+`, `*`, `==`, etc."),
+            Some("Valid: `+ - * / % == != < > <= >=`"),
         ),
         ErrT::InvalidArgToken => (
             "invalid argument token",
             "Invalid token in function argument list.",
-            Some("check for misplaced commas or operators"),
-            Some("ensure correct syntax for function calls"),
+            Some("Check for misplaced commas or operators"),
+            Some("Ensure correct syntax for function calls"),
         ),
         ErrT::ExpectExpression => (
             "expected expression",
             "Expected a value, literal, or computation.",
-            Some("provide a valid expression or value"),
-            Some("could be a literal, var name, or call"),
+            Some("Provide a valid expression or value"),
+            Some("Could be a literal, variable name, or call"),
         ),
         ErrT::Generic(msg) => ("error", msg.as_str(), None, None),
         ErrT::TypeMismatch => (
             "type mismatch",
             "Types of operands do not match.",
-            Some("check types of variables and literals"),
-            Some("ensure correct type conversions"),
+            Some("Check types of variables and literals"),
+            Some("Ensure correct type conversions"),
         ),
         ErrT::UnexpectedEof => (
             "unexpected end of file",
@@ -102,42 +102,65 @@ pub fn DErr(err: &SErr, src: &str) {
         _ => (err.start as usize, err.end as usize),
     };
 
-    // Error header
-    println!("\nerror[E{:04}]: {}", line_number, kind.bright_red().bold());
-
-    // Location bar
+    // Print error header like: error[E0001]: expected identifier
     println!(
-        "  --> {}:{}:{}",
+        "\n{}[E{:04}]: {}",
+        "error".bright_red().bold(),
+        line_number,
+        kind.bright_white().bold()
+    );
+
+    // --> src/main.sip:12:5
+    println!(
+        "{} {}:{}:{}",
+        "-->".bright_blue(),
         err.file.bright_blue(),
         line_number,
         start + 1
     );
 
-    // Code context frame
-    println!("   ╭─[{}]", "source".bright_black());
+    // Code context
+    println!(" {}","│".bright_black());
     println!(
-        "{} │ {}",
-        format!("{:>2}", line_number).bright_black(),
+        " {} {:>4} {} {}",
+        "│".bright_black(),
+        line_number,
+        "│".bright_black(),
         line_str
     );
 
-    // Error indicator
+    // Error underline and message
+    let marker = "^".repeat((end - start).max(1));
     println!(
-        "   │ {}{}",
+        " {}      {} {}{}",
+        "│".bright_black(),
         " ".repeat(start),
-        "^".repeat(end - start).bright_red().bold()
+        marker.bright_red().bold(),
+        format!(" {}", detail).bright_red()
     );
-    println!("   │ {}{}", " ".repeat(start), detail.bright_red());
 
-    // Help section if available
+    // Empty line before hints
+    println!(" {}", "│".bright_black());
+
+    // Help
     if let Some(h) = help {
-        println!("   │");
-        println!("   ╰─[{}] {}", "help".green().bold(), h.bright_white());
+        println!(
+            "{} {} {}",
+            "help:".green().bold(),
+            " ".repeat(2),
+            h.bright_white()
+        );
     }
 
-    // Note section if available
+    // Note
     if let Some(n) = note {
-        println!("      {} {}", "note:".cyan().bold(), n.bright_white());
+        println!(
+            "{} {} {}",
+            "note:".cyan().bold(),
+            " ".repeat(2),
+            n.bright_white()
+        );
     }
-    println!();
+
+    println!(); // trailing newline
 }
