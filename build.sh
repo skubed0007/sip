@@ -1,14 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Starting multi-target static build..."
+echo "🔧 Starting multi-target static build for workspace binaries..."
 
-# Your binary name
-BIN_NAME="sip"
+# Define all binaries you want to build
+BINARIES=("sipc" "sipfmt")  # These must match your [[bin]] targets or bin crate names
 BUILD_DIR="bin"
 
-mkdir -p "$BUILD_DIR"
-
+# Define all targets
 TARGETS=(
   "x86_64-unknown-linux-gnu"
   "x86_64-unknown-linux-musl"
@@ -17,40 +16,43 @@ TARGETS=(
   "i686-pc-windows-gnu"
 )
 
-# Add targets
+mkdir -p "$BUILD_DIR"
+
+echo "📦 Adding required targets..."
 for target in "${TARGETS[@]}"; do
   rustup target add "$target"
 done
+echo "✅ Targets ready."
 
-echo "✅ All targets added."
+# Loop through each binary and build for each target
+for BIN in "${BINARIES[@]}"; do
+  for target in "${TARGETS[@]}"; do
+    echo "🔨 Building $BIN for $target..."
 
-for target in "${TARGETS[@]}"; do
-  echo "🔨 Building for $target..."
+    # Reset env per target
+    export RUSTFLAGS=""
+    EXT=""
 
-  # Reset environment
-  export RUSTFLAGS=""
-  EXT=""
+    case "$target" in
+      *-musl)
+        # MUSL targets are statically linked by default
+        ;;
+      *-windows-gnu)
+        export RUSTFLAGS="-C target-feature=+crt-static"
+        EXT=".exe"
+        ;;
+      *-linux-gnu)
+        export RUSTFLAGS="-C target-feature=+crt-static"
+        ;;
+    esac
 
-  # Target-specific adjustments
-  case $target in
-    *-musl)
-      # MUSL targets are statically linked by default
-      ;;
-    *-windows-gnu)
-      export RUSTFLAGS="-C target-feature=+crt-static"
-      EXT=".exe"
-      ;;
-    *-linux-gnu)
-      export RUSTFLAGS="-C target-feature=+crt-static"
-      ;;
-  esac
+    # Build using Cargo with workspace support
+    cargo build --release --bin "$BIN" --target "$target"
 
-  # Build
-  cargo build --release --target "$target"
-
-  # Output
-  cp "target/$target/release/$BIN_NAME$EXT" "$BUILD_DIR/${BIN_NAME}-${target}$EXT"
-  echo "✅ Built $BIN_NAME for $target"
+    # Copy result to bin/ with clean naming
+    cp "target/$target/release/$BIN$EXT" "$BUILD_DIR/${BIN}-${target}${EXT}"
+    echo "✅ Built $BIN for $target"
+  done
 done
 
-echo "🎉 All builds complete! Binaries in '$BUILD_DIR/'"
+echo "🎉 All builds complete! Check the '$BUILD_DIR/' directory."

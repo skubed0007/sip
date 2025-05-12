@@ -1,15 +1,8 @@
-[package]
-name = "sip"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-clap = { version = "4.3.38", features = ["derive"] }
-colored = "3.0.0"
-enable-ansi-support = "0.2.1"
-memmap2 = "0.9.5"
-smallstr = "0.3.0"
-tempfile = "3.19.1"
+[workspace]
+resolver = "3"
+members = [
+    "sipc", "sipfmt",
+]
 
 [profile.release]
 opt-level = "z"      # Can use "3" or "z" depending on goal (see below)
@@ -20,3 +13,4 @@ strip = "symbols"    # Strip symbols for faster loading (requires Rust 1.71+)
 overflow-checks = false
 panic = "abort"      # No stack unwinding, smaller & faster
 incremental = false  # Disable incremental builds
+
