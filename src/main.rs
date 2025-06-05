@@ -1,5 +1,6 @@
 use codegen::codegen::cgen;
 use colored::*;
+use enable_ansi_support::enable_ansi_support;
 use errt::d1::DErr;
 use help::print_help;
 use lexer::lex;
@@ -50,7 +51,7 @@ pub struct Options {
 }
 
 fn parse_args(args: &[String]) -> (Options, String, String) {
-    if args.len() < 3 {
+    if args.len() < 2 {
         print_help();
         eprintln!("{}", "Usage: sip <command> <source_file> [options]".red());
         exit(1);
@@ -85,12 +86,14 @@ fn parse_args(args: &[String]) -> (Options, String, String) {
         zig_link_libc: true,
     };
 
-    let command = args[1].clone();
-    let source_file = args[2].clone();
+    let mut command = None;
+    let mut source_file = None;
 
-    let mut iter = args.iter().skip(3);
+    let mut iter = args.iter().skip(1).peekable();
     while let Some(arg) = iter.next() {
         match arg.as_str() {
+            "build" | "fmt" | "help" => command = Some(arg.clone()),
+            a if a.ends_with(".sip") => source_file = Some(a),
             "-O" | "--opt" => {
                 if let Some(val) = iter.next() {
                     options.opt = val.parse().ok();
@@ -121,14 +124,21 @@ fn parse_args(args: &[String]) -> (Options, String, String) {
             "--zig-cpu-features" => options.zig_cpu_features = iter.next().cloned(),
             "--zig-no-libc" => options.zig_link_libc = false,
             _ => {
-                eprintln!("{}: {}", "Unknown option".red(), arg);
+                eprintln!("{}: {}", "Unknown option or argument".red(), arg);
                 exit(1);
             }
         }
     }
 
-    (options, command, source_file)
+    if command.is_none() || source_file.is_none() {
+        eprintln!("{}: missing command or .sip file", "Error".red());
+        print_help();
+        exit(1);
+    }
+
+    (options, command.unwrap(), source_file.unwrap().to_string())
 }
+
 
 
 fn build(options: &Options, source_file: &str) {
@@ -177,7 +187,9 @@ fn build(options: &Options, source_file: &str) {
             exit(1);
         }
     };
-
+    if options.debug{
+        println!("tokens:\n{:#?}",&ast);
+    }
     print!("\r{}", "Generating C code...".cyan());
     stdout().flush().unwrap();
 
@@ -330,6 +342,13 @@ fn build(options: &Options, source_file: &str) {
 }
 
 fn main() {
+    match enable_ansi_support(){
+        Err(e) => {
+            eprintln!("unable to enable ansi support!\nerror: {}",e);
+            exit(1)
+        }
+        _ => {}
+    }
     let mut args: Vec<String> = env::args().collect();
 
     if args.len() >= 2 && args[1] == "fmt" {

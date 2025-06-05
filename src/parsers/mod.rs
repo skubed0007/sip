@@ -33,7 +33,7 @@ pub fn parse(tokens: Vec<Tok>, filename: &String) -> Result<Vec<NT>, Vec<SErr>> 
 
     while let Some(tok) = tokiter.next() {
         match &tok.tt {
-            TT::CLN => match linkp(&mut tokiter, filename) {
+            TT::LN => match linkp(&mut tokiter, filename,&mut ast) {
                 Ok(nds) => ast.push(nds),
                 Err(e) => errs.extend(e),
             },

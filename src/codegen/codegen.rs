@@ -1,23 +1,24 @@
-use crate::ast::{NT, Var};
+use crate::ast::{NT, Var, CLINKT};
 
 pub fn cgen(ast: &[NT]) -> String {
-    let mut main_body = String::with_capacity(1024); // Pre-allocate memory for the main body
-    let mut headers = String::with_capacity(512); // Pre-allocate memory for headers
+    let mut main_body = String::with_capacity(1024);
+    let mut headers = String::with_capacity(512);
 
-    // Iterate over AST nodes
     for node in ast {
         match node {
             NT::Link(names) => {
-                for name in names {
-                    headers.push_str(&format!("#include <{}>\n", name));
+                for (name, kind) in names {
+                    match kind {
+                        CLINKT::LIB => headers.push_str(&format!("#include <{}>\n", name)),
+                        CLINKT::PATH => headers.push_str(&format!("#include \"{}\"\n", name)),
+                    }
                 }
             }
 
             NT::FNCALL(name, args) => {
-                main_body.push_str(&format!("    {}(", name)); // Indent inside main
+                main_body.push_str(&format!("    {}(", name));
                 let mut first = true;
 
-                // Process arguments
                 for arg in args {
                     if !first {
                         main_body.push_str(", ");
@@ -27,44 +28,39 @@ pub fn cgen(ast: &[NT]) -> String {
                     match arg {
                         Var::F32(val, _) => main_body.push_str(&val.to_string()),
                         Var::I32(val, _) => main_body.push_str(&val.to_string()),
-                        Var::Generic(name) => {
-                            main_body.push_str(&format!("{}", name));
-                        }
+                        Var::Generic(name) => main_body.push_str(name),
                         Var::List(items) => {
                             let mut first_in_list = true;
                             for item in items {
-                                if !first && !first_in_list {
+                                if !first_in_list {
                                     main_body.push_str(", ");
                                 }
-                                first = false;
                                 first_in_list = false;
 
                                 match item {
                                     Var::F32(val, _) => main_body.push_str(&val.to_string()),
                                     Var::I32(val, _) => main_body.push_str(&val.to_string()),
                                     Var::Generic(name) => main_body.push_str(name.as_ref()),
-                                    _ => main_body.push('0'), // fallback
+                                    _ => main_body.push('0'),
                                 }
                             }
                         }
-
-                        _ => main_body.push('0'), // For unsupported types, use 0
+                        _ => main_body.push('0'),
                     }
                 }
 
                 main_body.push_str(");\n");
             }
 
-            _ => {} // You can expand for more AST node types
+            _ => {}
         }
     }
 
-    // Assemble the final C code
-    let mut full_code = String::with_capacity(headers.len() + main_body.len() + 50);
+    let mut full_code = String::with_capacity(headers.len() + main_body.len() + 64);
     full_code.push_str(headers.trim_end());
-    full_code.push_str("\nint main() {\n");
+    full_code.push_str("\n\nint main() {\n");
     full_code.push_str(&main_body);
-    full_code.push_str("}\n");
+    full_code.push_str("    return 0;\n}\n");
 
     full_code
 }

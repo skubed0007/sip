@@ -3,92 +3,103 @@ use colored::*;
 
 #[allow(non_snake_case)]
 pub fn DErr(err: &SErr, src: &str) {
+    let io_err_msg;
+
     let (kind, detail, help, note) = match &err.t {
         ErrT::ExpectName => (
             "expected identifier",
             "Parser expected a variable name or symbol here.",
-            Some("Use a valid name: letters, numbers, underscores"),
-            Some("Identifiers cannot start with digits"),
+            Some("Use a valid name: letters, numbers, and underscores."),
+            Some("Identifiers cannot start with digits."),
         ),
         ErrT::UnexpectTok => (
             "unexpected token",
             "Found an unexpected token in this context.",
-            Some("Check for misplaced operators or keywords"),
-            Some("Try removing or replacing the highlighted token"),
+            Some("Check for misplaced operators or keywords."),
+            Some("Try removing or replacing the highlighted token."),
         ),
         ErrT::MissingSemicolon => (
             "missing semicolon",
             "Statements must end with a semicolon (`;`).",
-            Some("Add `;` at the end of the statement"),
-            Some("Every declaration needs a semicolon"),
+            Some("Add a semicolon at the end of the statement."),
+            Some("Every declaration requires a semicolon."),
         ),
         ErrT::UnterminatedLiteral => (
             "unterminated literal",
-            "String or character literal wasn't properly closed.",
-            Some("Add a closing quote (`\"`) or apostrophe (`'`)"),
-            Some("Escape inner quotes with `\\\"` or `\\'`"),
+            "String or character literal was not properly closed.",
+            Some("Add a closing quote (`\"`) or apostrophe (`'`)."),
+            Some("Escape inner quotes using `\\\"` or `\\'`."),
         ),
         ErrT::InvalidNumber => (
             "invalid number",
             "Malformed or out-of-range numeric literal.",
-            Some("Check digits, radix prefixes, or type suffixes"),
-            Some("Example: `0xFF`, `42u8`, or `1.5f32`"),
+            Some("Verify digits, radix prefixes, or type suffixes."),
+            Some("Examples: `0xFF`, `42u8`, `1.5f32`."),
         ),
         ErrT::UnknownKeyword => (
             "unknown keyword",
             "Unrecognized keyword or directive.",
-            Some("Check spelling or refer to documentation"),
-            Some("Valid: `extern`, `clink`, `fn`, `let`, ..."),
+            Some("Check spelling or consult documentation."),
+            Some("Valid keywords include `extern`, `clink`, `fn`, `let`, etc."),
         ),
         ErrT::UnmatchedParen => (
             "unmatched parenthesis",
             "Mismatched or unclosed parentheses.",
-            Some("Ensure every `(` has a closing `)`"),
-            Some("Use an editor with bracket highlighting"),
+            Some("Ensure every `(` has a matching `)`."),
+            Some("Use an editor with bracket highlighting."),
         ),
         ErrT::UnmatchedBrace => (
             "unmatched brace",
-            "Mismatched or unclosed `{}` blocks.",
-            Some("Ensure every `{` has a matching `}`"),
-            Some("Use auto-format tools like rustfmt"),
+            "Mismatched or unclosed braces `{}`.",
+            Some("Ensure every `{` has a matching `}`."),
+            Some("Use tools like `rustfmt` for formatting."),
         ),
         ErrT::UnmatchedBracket => (
             "unmatched bracket",
             "Mismatched or unclosed square brackets.",
-            Some("Ensure every `[` has a matching `]`"),
-            Some("Common in array literals or indexing"),
+            Some("Ensure every `[` has a matching `]`."),
+            Some("Common in array literals or indexing."),
         ),
         ErrT::ExpectOperator => (
             "expected operator",
-            "Expected an arithmetic or logical operator.",
+            "Expected an arithmetic or logical operator here.",
             Some("Insert an operator like `+`, `*`, `==`, etc."),
-            Some("Valid: `+ - * / % == != < > <= >=`"),
+            Some("Valid operators: `+ - * / % == != < > <= >=`."),
         ),
         ErrT::InvalidArgToken => (
             "invalid argument token",
             "Invalid token in function argument list.",
-            Some("Check for misplaced commas or operators"),
-            Some("Ensure correct syntax for function calls"),
+            Some("Check for misplaced commas or operators."),
+            Some("Ensure correct function call syntax."),
         ),
         ErrT::ExpectExpression => (
             "expected expression",
             "Expected a value, literal, or computation.",
-            Some("Provide a valid expression or value"),
-            Some("Could be a literal, variable name, or call"),
+            Some("Provide a valid expression or value."),
+            Some("Could be a literal, variable name, or function call."),
         ),
         ErrT::Generic(msg) => ("error", msg.as_str(), None, None),
         ErrT::TypeMismatch => (
             "type mismatch",
-            "Types of operands do not match.",
-            Some("Check types of variables and literals"),
-            Some("Ensure correct type conversions"),
+            "Operand types do not match.",
+            Some("Verify variable and literal types."),
+            Some("Ensure proper type conversions."),
         ),
         ErrT::UnexpectedEof => (
             "unexpected end of file",
-            "Unexpected end of file.",
+            "File ended unexpectedly.",
             None,
             None,
         ),
+        ErrT::IOErr(file) => {
+            io_err_msg = format!("Unable to access file: {}", file);
+            (
+                "file access error",
+                io_err_msg.as_str(),
+                Some("Ensure the file exists and is readable."),
+                Some("Check the file path, permissions, and spelling."),
+            )
+        }
     };
 
     let line_number = err.line.max(1);
@@ -102,7 +113,6 @@ pub fn DErr(err: &SErr, src: &str) {
         _ => (err.start as usize, err.end as usize),
     };
 
-    // Print error header like: error[E0001]: expected identifier
     println!(
         "\n{}[E{:04}]: {}",
         "error".bright_red().bold(),
@@ -110,7 +120,6 @@ pub fn DErr(err: &SErr, src: &str) {
         kind.bright_white().bold()
     );
 
-    // --> src/main.sip:12:5
     println!(
         "{} {}:{}:{}",
         "-->".bright_blue(),
@@ -119,8 +128,7 @@ pub fn DErr(err: &SErr, src: &str) {
         start + 1
     );
 
-    // Code context
-    println!(" {}","│".bright_black());
+    println!(" {}", "│".bright_black());
     println!(
         " {} {:>4} {} {}",
         "│".bright_black(),
@@ -129,7 +137,6 @@ pub fn DErr(err: &SErr, src: &str) {
         line_str
     );
 
-    // Error underline and message
     let marker = "^".repeat((end - start).max(1));
     println!(
         " {}      {} {}{}",
@@ -139,28 +146,25 @@ pub fn DErr(err: &SErr, src: &str) {
         format!(" {}", detail).bright_red()
     );
 
-    // Empty line before hints
     println!(" {}", "│".bright_black());
 
-    // Help
     if let Some(h) = help {
         println!(
             "{} {} {}",
             "help:".green().bold(),
-            " ".repeat(2),
+            "  ",
             h.bright_white()
         );
     }
 
-    // Note
     if let Some(n) = note {
         println!(
             "{} {} {}",
             "note:".cyan().bold(),
-            " ".repeat(2),
+            "  ",
             n.bright_white()
         );
     }
 
-    println!(); // trailing newline
+    println!();
 }

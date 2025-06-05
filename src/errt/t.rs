@@ -1,6 +1,7 @@
 #[derive(Debug, Clone)]
 /// Parser error kinds.
 pub enum ErrT {
+    IOErr(String),
     TypeMismatch,
     UnexpectedEof,
     InvalidArgToken,

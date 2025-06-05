@@ -222,7 +222,6 @@ pub fn lex(code: &[u8]) -> Vec<Tok> {
                 let tt = match ident {
                     "extern" => TT::EXTERN,
                     "link" => TT::LN,
-                    "clink" => TT::CLN,
                     "i32" => TT::I32,
                     "f32" => TT::F32,
                     "u8" => TT::U8,

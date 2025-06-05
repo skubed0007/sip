@@ -18,7 +18,6 @@ pub enum NUMT {
     F(f32),
     I32(i32),
 }
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum TT {
     EXTERN,
@@ -27,10 +26,8 @@ pub enum TT {
     /// `...` -> DOTDOTDOT -> DDD
     DDD,
     NUM(NUMT),
-    /// sip link
+    /// LInk
     LN,
-    /// clink
-    CLN,
     OP(OPT),
     AT,
     F32,

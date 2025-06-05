@@ -2,6 +2,7 @@
     "files.associations": {
         "cstdlib": "cpp",
         "memory": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "stdlib.h": "c"
     }
 }
