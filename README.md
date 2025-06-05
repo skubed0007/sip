@@ -9,7 +9,7 @@ Its unique syntax, external/C interop, rich error reporting, and a tiny AST make
 ## 🚀 Features
 
 - **C‑style syntax**  
-- **`extern` / `link` / `clink`** for seamless C interoperability  
+- **`extern` / `link` ** for seamless C interoperability  
 - **Powerful error reporting** with `ErrT` kinds (`ExpectName`, `MissingSemicolon`, etc.)  
 - **Flexible AST** (`NT::Extern`, `NT::Link`, `NT::fncall`)  
 - **Zero‑allocation identifiers** via `smallstr` inline buffers  
@@ -79,7 +79,7 @@ Given a source file `example.sip`:
 
 ```c
 //link unistd.h
-clink "unistd.h";
+link "unistd.h";
 extern write fd(i32) /*give optional types*/ text len(i32) = "write" fd text len;
 //call the function now
 write(1,"hello world",12);
